@@ -6,7 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script src="assets/login-check.js"></script>
 
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
@@ -31,7 +30,7 @@
     <style>
         #maincontent {
             padding-top: 20px;
-            padding-bottom: 20px;
+            padding-bottom: 80px;
             max-width: 600px;
             margin-right: auto;
             margin-left: auto;
@@ -184,8 +183,12 @@
             console.log("Response:", r)
             CURRENT_SUBMISSION = r;
             reRender()
-        }).catch(errpr => {
-            console.log("ERROR", error)
+        }).catch(err => {
+            if (err.status === 404) {
+                alert("Submission not found!")
+                window.location.href = '/'
+            }
+
         })
     </script>
 </body>
