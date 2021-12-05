@@ -81,17 +81,26 @@
         const GET_DETAIL_URL = 'https://enr31dbzh30foen.m.pipedream.net'
         let CURRENT_SUBMISSION = {};
         const changeSubmissionStatus = newStatus => {
+            swal("Loading", `Updating information on server`, "info");
+            let price = 0
             newStatus = !!newStatus;
+            if (newStatus) {
+                price = prompt("Please enter price", "");
+            }
             $.post(`${CHANGE_STATUS_URL}?submissionID=${params.submissionID}`, {
-                newStatus: newStatus
+                newStatus: newStatus,
+                price
             }).then(r => {
                 console.log("Response:", r)
                 CURRENT_SUBMISSION['approved'] = newStatus
                 reRender()
                 swal("Success!", `Marked as ${newStatus ? "Approved" : "Unapproved"}!`, "success");
 
-            }).catch(errpr => {
+            }).catch(error => {
                 swal("Oops", "Something went wrong!", "error");
+                if (error.status === 403) {
+                    window.location.href = '/login?redirect=' + window.location.href + '&errorMessage=Please Login';
+                }
 
             })
         }
