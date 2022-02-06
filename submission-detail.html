@@ -82,14 +82,17 @@
         let CURRENT_SUBMISSION = {};
         const changeSubmissionStatus = newStatus => {
             swal("Loading", `Updating information on server`, "info");
-            let price = 0
+            let price = null
+            let price2 = null
             newStatus = !!newStatus;
             if (newStatus) {
                 price = prompt("Please enter price", "");
+                price2 = prompt("Please enter price 2", "");
             }
             $.post(`${CHANGE_STATUS_URL}?submissionID=${params.submissionID}`, {
                 newStatus: newStatus,
-                price
+                price,
+                price2
             }).then(r => {
                 console.log("Response:", r)
                 CURRENT_SUBMISSION['approved'] = newStatus
