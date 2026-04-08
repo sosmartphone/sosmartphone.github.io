@@ -2354,8 +2354,10 @@ async function calcolaAcquisto() {
   const ritiro = gradoAcquisto === 'A' ? riga.ritiroA : riga.ritiroB;
   let detPct = 0;
   [1,2,3,4,5,6].forEach(i => {
-    const box = document.getElementById('cbox-'+i);
-    if (box && box.classList.contains('checked')) detPct += parseFloat(document.getElementById('pct-'+i).value)||0;
+    const row = document.getElementById('difetto-'+i);
+    if (row && row.classList.contains('checked')) {
+      detPct += parseFloat(document.getElementById('pct-'+i).value)||0;
+    }
   });
 
   const detrazione = Math.round(ritiro * detPct / 100);
