@@ -705,7 +705,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div id="vend-prezzi-box" style="display:none;background:var(--g50);border-radius:var(--rsm);padding:12px;margin-bottom:12px">
         <div style="font-size:10px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Prezzo dal listino</div>
         <div class="rrow"><span class="rrl">Prezzo vendita consigliato</span><span class="rrv pos" style="font-size:20px;font-weight:700" id="vend-prezzo-sheet">—</span></div>
-        <div class="rrow"><span class="rrl">Margine</span><span class="rrv" id="vend-margine-sheet">—</span></div>
       </div>
 
       <button class="btn btn-black" onclick="calcolaVendita()">Conferma prezzo</button>
@@ -715,8 +714,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div class="rbody">
         <div class="rrow"><span class="rrl">Modello</span><span class="rrv" id="ris-vend-mod">—</span></div>
         <div class="rrow"><span class="rrl">Grado</span><span class="rrv" id="ris-vend-gra">—</span></div>
-        <div class="rrow"><span class="rrl">Prezzo consigliato</span><span class="rrv pos" id="ris-vend-con">—</span></div>
-        <div class="rrow"><span class="rrl">Margine</span><span class="rrv pos" id="ris-vend-mar">—</span></div>
         <button class="btn btn-outline" style="margin-top:10px" onclick="document.getElementById('ris-vend').classList.remove('show')">Nuovo calcolo</button>
       </div>
     </div>
