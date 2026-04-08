@@ -618,7 +618,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
         <div class="cgroup" id="difetti-list">
           <div class="citem-row" id="difetto-1">
             <div class="citem-check" onclick="togDifetto(1)"><div class="cbox" id="cbox-1"></div><span class="clabel">Schermo rotto</span></div>
-            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-1" value="25" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
+            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-1" value="50" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
           </div>
           <div class="citem-row" id="difetto-2">
             <div class="citem-check" onclick="togDifetto(2)"><div class="cbox" id="cbox-2"></div><span class="clabel">Batteria da sostituire</span></div>
@@ -630,7 +630,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
           </div>
           <div class="citem-row" id="difetto-4">
             <div class="citem-check" onclick="togDifetto(4)"><div class="cbox" id="cbox-4"></div><span class="clabel">Non si accende</span></div>
-            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-4" value="50" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
+            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-4" value="80" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
           </div>
           <div class="citem-row" id="difetto-5">
             <div class="citem-check" onclick="togDifetto(5)"><div class="cbox" id="cbox-5"></div><span class="clabel">Face ID non funziona</span></div>
@@ -2353,12 +2353,16 @@ async function calcolaAcquisto() {
 
   const ritiro = gradoAcquisto === 'A' ? riga.ritiroA : riga.ritiroB;
   let detPct = 0;
-  [1,2,3,4,5,6].forEach(i => {
-    const row = document.getElementById('difetto-'+i);
-    if (row && row.classList.contains('checked')) {
-      detPct += parseFloat(document.getElementById('pct-'+i).value)||0;
-    }
+  difettiChecked.forEach(i => {
+    const pct = document.getElementById('pct-'+i);
+    if (pct) detPct += parseFloat(pct.value)||0;
   });
+
+  // Cap massimo 80%
+  if (detPct > 80) {
+    toast('Detrazione massima 80% — valutare caso per caso','err');
+    detPct = 80;
+  }
 
   const detrazione = Math.round(ritiro * detPct / 100);
   const offerta = Math.max(0, ritiro - detrazione);
