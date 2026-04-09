@@ -1175,109 +1175,46 @@ const CSV_LOG_VENDITE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQc0_8d
 
 async function aggiornaDashboard(){
   try {
-    document.getElementById('db-load')?.classList.add('show');
-
     const resp = await fetch(CSV_LOG_VENDITE + '&t=' + Date.now());
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();
-
-    // Parsing CSV robusto: gestisce virgole dentro campi quoted
-    function parseCSVLine(line) {
-      const cols = [];
-      let cur = '', inQ = false;
-      for (let i = 0; i < line.length; i++) {
-        const c = line[i];
-        if (c === '"') { inQ = !inQ; }
-        else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
-        else { cur += c; }
-      }
-      cols.push(cur.trim());
-      return cols;
-    }
-
-    // Normalizza data → sempre dd/mm/yyyy con slash
-    function normalizzaData(raw) {
-      const s = raw.replace(/[^\d\-\/]/g,'').trim();
-      if (!s) return null;
-      // yyyy-mm-dd → dd/mm/yyyy
-      if (/^\d{4}[-\/]\d{2}[-\/]\d{2}$/.test(s)) {
-        const p = s.split(/[-\/]/);
-        return p[2] + '/' + p[1] + '/' + p[0];
-      }
-      // dd-mm-yyyy → dd/mm/yyyy
-      if (/^\d{2}-\d{2}-\d{4}$/.test(s)) {
-        return s.replace(/-/g,'/');
-      }
-      // dd/mm/yyyy → già ok
-      if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) {
-        return s;
-      }
-      return s;
-    }
-
-    const now = new Date();
-    const oggiStr = String(now.getDate()).padStart(2,'0') + '/' +
-                    String(now.getMonth()+1).padStart(2,'0') + '/' +
-                    now.getFullYear(); // → "09/04/2026"
-    const meseCorrente = now.getMonth();
-    const annoCorrente = now.getFullYear();
-
     const lines = text.split('\n').filter(l => l.trim());
-    let venditeOggiCount = 0, venditeOggiEuro = 0;
-    let venditeMeseCount = 0, venditeMeseEuro = 0;
-    let righeValide = 0;
-
-    for (let i = 1; i < lines.length; i++) {
-      const cols = parseCSVLine(lines[i]);
-      const dataNorm = normalizzaData(cols[0] || '');
-      if (!dataNorm) continue;
-
-      // Prezzo: colonna H (indice 7), tolgo €, spazi, caratteri non numerici
-      const prezzoRaw = (cols[7] || '').replace(/[^0-9.,]/g, '').replace(',','.');
-      const prezzo = parseFloat(prezzoRaw) || 0;
-      righeValide++;
-
-      // Oggi
-      if (dataNorm === oggiStr) {
-        venditeOggiCount++;
-        venditeOggiEuro += prezzo;
-      }
-
-      // Questo mese
-      const parts = dataNorm.split('/'); // [dd, mm, yyyy]
-      if (parts.length === 3) {
-        const m = parseInt(parts[1]) - 1;
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2,'0');
+    const mm = String(now.getMonth()+1).padStart(2,'0');
+    const yyyy = now.getFullYear();
+    const oggiSlash = dd+'/'+mm+'/'+yyyy;
+    const oggiDash  = dd+'-'+mm+'-'+yyyy;
+    let venditeOggiCount=0, venditeOggiEuro=0, venditeMeseCount=0;
+    for (let i=1; i<lines.length; i++) {
+      const cols = lines[i].split(',');
+      const data = (cols[0]||'').trim();
+      const prezzo = parseFloat((cols[7]||'').replace(/[^0-9.]/g,''))||0;
+      if (data===oggiSlash||data===oggiDash) { venditeOggiCount++; venditeOggiEuro+=prezzo; }
+      const parts = data.split(/[-\/]/);
+      if (parts.length===3) {
+        const m = parseInt(parts[1])-1;
         const a = parseInt(parts[2]);
-        if (m === meseCorrente && a === annoCorrente) {
-          venditeMeseCount++;
-          venditeMeseEuro += prezzo;
-        }
+        if (m===now.getMonth()&&a===now.getFullYear()) venditeMeseCount++;
       }
     }
-
-    console.log(`Dashboard: ${righeValide} righe, oggi=${oggiStr}, venditeogg=${venditeOggiCount}`);
-
     const rmaAperte = document.querySelectorAll('.rma-item.aperta').length;
     const rmaPronte = document.querySelectorAll('.rma-item.pronta').length;
-
     document.getElementById('db-vend-oggi').textContent = venditeOggiCount;
     document.getElementById('db-vend-mese').textContent = venditeMeseCount;
-    document.getElementById('db-incasso').textContent = venditeOggiEuro > 0 ? venditeOggiEuro + '€' : '0€';
-    document.getElementById('db-rma-aperte').textContent = rmaAperte || '0';
-    document.getElementById('db-rma-pronte').textContent = rmaPronte || '0';
+    document.getElementById('db-incasso').textContent = venditeOggiEuro>0 ? venditeOggiEuro+'€' : '0€';
+    document.getElementById('db-rma-aperte').textContent = rmaAperte||'0';
+    document.getElementById('db-rma-pronte').textContent = rmaPronte||'0';
     document.getElementById('db-rma-chiuse').textContent = '—';
     document.getElementById('db-iscr-tot').textContent = '—';
     document.getElementById('db-cod-oggi').textContent = '—';
     document.getElementById('db-premi').textContent = '—';
     document.getElementById('dash-vendite').textContent = venditeOggiCount;
-    document.getElementById('dash-rma').textContent = rmaAperte || '0';
-
-    document.getElementById('db-load')?.classList.remove('show');
-    toast('Dashboard aggiornata (' + righeValide + ' vendite totali)','ok');
+    document.getElementById('dash-rma').textContent = rmaAperte||'0';
+    toast('Dashboard aggiornata','ok');
   } catch(e) {
-    console.error('Dashboard error:', e);
-    document.getElementById('db-load')?.classList.remove('show');
-    toast('Errore: ' + e.message,'err');
+    console.error('Dashboard error:',e);
+    toast('Errore dashboard','err');
   }
 }
 
@@ -1991,16 +1928,16 @@ function renderStorico(){
 }
 function rimuoviVendita(i){storicoVendite.splice(i,1);renderStorico();}
 
-// DASHBOARD contatori
-function aggiornaDashboard(){
+// DASHBOARD contatori UI
+function aggiornaDashboardUI(){
   const oggi=new Date().toLocaleDateString('it-IT');
   document.getElementById('storico-data').textContent=oggi;
   document.getElementById('dash-vendite').textContent=storicoVendite.length;
   const rmaAperte=document.querySelectorAll('.rma-item.aperta').length;
   document.getElementById('dash-rma').textContent=rmaAperte||'0';
 }
-setInterval(aggiornaDashboard,5000);
-setTimeout(aggiornaDashboard,500);
+setInterval(aggiornaDashboardUI,5000);
+setTimeout(aggiornaDashboardUI,500);
 
 // PIANO PROTEZIONE SOS
 let protFasciaSelezionata = null;
