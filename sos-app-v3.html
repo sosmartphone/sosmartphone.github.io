@@ -1195,26 +1195,30 @@ async function aggiornaDashboard(){
       return cols;
     }
 
-    // Normalizza data: accetta dd/mm/yyyy, dd-mm-yyyy, yyyy-mm-dd
+    // Normalizza data → sempre dd/mm/yyyy con slash
     function normalizzaData(raw) {
       const s = raw.replace(/[^\d\-\/]/g,'').trim();
       if (!s) return null;
-      // yyyy-mm-dd
+      // yyyy-mm-dd → dd/mm/yyyy
       if (/^\d{4}[-\/]\d{2}[-\/]\d{2}$/.test(s)) {
         const p = s.split(/[-\/]/);
-        return p[2] + '-' + p[1] + '-' + p[0]; // → dd-mm-yyyy
+        return p[2] + '/' + p[1] + '/' + p[0];
       }
-      // dd/mm/yyyy o dd-mm-yyyy
-      if (/^\d{2}[-\/]\d{2}[-\/]\d{4}$/.test(s)) {
-        return s.replace(/\//g,'-');
+      // dd-mm-yyyy → dd/mm/yyyy
+      if (/^\d{2}-\d{2}-\d{4}$/.test(s)) {
+        return s.replace(/-/g,'/');
+      }
+      // dd/mm/yyyy → già ok
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) {
+        return s;
       }
       return s;
     }
 
     const now = new Date();
-    const oggiStr = String(now.getDate()).padStart(2,'0') + '-' +
-                    String(now.getMonth()+1).padStart(2,'0') + '-' +
-                    now.getFullYear(); // → "09-04-2026"
+    const oggiStr = String(now.getDate()).padStart(2,'0') + '/' +
+                    String(now.getMonth()+1).padStart(2,'0') + '/' +
+                    now.getFullYear(); // → "09/04/2026"
     const meseCorrente = now.getMonth();
     const annoCorrente = now.getFullYear();
 
@@ -1240,7 +1244,7 @@ async function aggiornaDashboard(){
       }
 
       // Questo mese
-      const parts = dataNorm.split('-'); // [dd, mm, yyyy]
+      const parts = dataNorm.split('/'); // [dd, mm, yyyy]
       if (parts.length === 3) {
         const m = parseInt(parts[1]) - 1;
         const a = parseInt(parts[2]);
