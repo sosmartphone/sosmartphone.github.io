@@ -1171,22 +1171,62 @@ const RIP={schermo:60,batteria:30,scocca:40,faceid:80,fotocamera:50};
 const SCREENS=['home','iscrizione','check','conferma','saldo','prev','rma','vendita-sm','dashboard','storico','accessori','protezione'];
 
 // DASHBOARD CSS aggiuntivo inline già nel CSS
-function aggiornaDashboard(){
-  // Demo — collegare a Swipe One API
-  document.getElementById('db-iscr-tot').textContent='—';
-  document.getElementById('db-cod-oggi').textContent='—';
-  document.getElementById('db-premi').textContent='—';
-  document.getElementById('db-rma-aperte').textContent=document.querySelectorAll('.rma-item.aperta').length||'0';
-  document.getElementById('db-rma-pronte').textContent=document.querySelectorAll('.rma-item.pronta').length||'0';
-  document.getElementById('db-rma-chiuse').textContent='—';
-  document.getElementById('db-vend-oggi').textContent=venditeOggi.length;
-  document.getElementById('db-vend-mese').textContent='—';
-  const tot=venditeOggi.reduce((s,v)=>s+(parseFloat(v.importo)||0),0);
-  document.getElementById('db-incasso').textContent=Math.floor(tot)+'€';
-  // aggiorna mini dashboard home
-  document.getElementById('dash-rma').textContent=document.querySelectorAll('.rma-item.aperta').length||'0';
-  document.getElementById('dash-vendite').textContent=venditeOggi.length;
-  toast('Dashboard aggiornata','ok');
+const CSV_LOG_VENDITE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQc0_8dqJFALQvaVDh1-E0-2wvrwd0UDKPMhTQnNvBIBDxYGZTGdwZZtzJVf68N2UJ9DHYiXigJSpHv/pub?gid=504867185&single=true&output=csv';
+
+async function aggiornaDashboard(){
+  try {
+    const resp = await fetch(CSV_LOG_VENDITE);
+    const text = await resp.text();
+    const lines = text.split('\n').filter(l => l.trim());
+    const oggi = new Date().toLocaleDateString('it-IT', {day:'2-digit',month:'2-digit',year:'numeric'});
+
+    let venditeOggiCount = 0;
+    let venditeOggiEuro = 0;
+    let venditeMeseCount = 0;
+    let venditeMeseEuro = 0;
+    const meseCorrente = new Date().getMonth();
+    const annoCorrente = new Date().getFullYear();
+
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(',');
+      const data = (cols[0]||'').trim();
+      const prezzo = parseFloat((cols[7]||'0').replace(/[€\s]/g,'')) || 0;
+      if (!data) continue;
+
+      // Vendite oggi
+      if (data === oggi) {
+        venditeOggiCount++;
+        venditeOggiEuro += prezzo;
+      }
+
+      // Vendite questo mese
+      const parts = data.split('/');
+      if (parts.length === 3) {
+        const m = parseInt(parts[1]) - 1;
+        const a = parseInt(parts[2]);
+        if (m === meseCorrente && a === annoCorrente) {
+          venditeMeseCount++;
+          venditeMeseEuro += prezzo;
+        }
+      }
+    }
+
+    document.getElementById('db-vend-oggi').textContent = venditeOggiCount;
+    document.getElementById('db-vend-mese').textContent = venditeMeseCount;
+    document.getElementById('db-incasso').textContent = venditeOggiEuro > 0 ? venditeOggiEuro + '€' : '0€';
+    document.getElementById('db-rma-aperte').textContent = document.querySelectorAll('.rma-item.aperta').length || '0';
+    document.getElementById('db-rma-pronte').textContent = document.querySelectorAll('.rma-item.pronta').length || '0';
+    document.getElementById('db-rma-chiuse').textContent = '—';
+    document.getElementById('db-iscr-tot').textContent = '—';
+    document.getElementById('db-cod-oggi').textContent = '—';
+    document.getElementById('db-premi').textContent = '—';
+    document.getElementById('dash-vendite').textContent = venditeOggiCount;
+    document.getElementById('dash-rma').textContent = document.querySelectorAll('.rma-item.aperta').length || '0';
+    toast('Dashboard aggiornata','ok');
+  } catch(e) {
+    console.error('Dashboard error:', e);
+    toast('Errore aggiornamento dashboard','err');
+  }
 }
 
 // STORICO VENDITE
