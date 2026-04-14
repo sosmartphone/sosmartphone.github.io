@@ -432,7 +432,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       allowTransparency="true"
       frameborder="0" scrolling="yes"
       style="width:100%;border:none;flex:1;min-height:calc(100vh - 120px)"
-      src="https://cruciani.formaloo.me/INSERISCI-ID-CHECK"></iframe>
+      src="https://cruciani.formaloo.me/833e6b"></iframe>
   </div>
 </div>
 
@@ -448,7 +448,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       allowTransparency="true"
       frameborder="0" scrolling="yes"
       style="width:100%;border:none;flex:1;min-height:calc(100vh - 120px)"
-      src="https://cruciani.formaloo.me/INSERISCI-ID-CONFERMA"></iframe>
+      src="https://cruciani.formaloo.me/9errr0"></iframe>
   </div>
 </div>
 
@@ -1272,11 +1272,21 @@ function calcolaAccessorio(tipo){
     </div>
   `;
 }
+const IFRAME_URLS = {
+  'iscrizione': 'https://cruciani.formaloo.me/jdgph3',
+  'check': 'https://cruciani.formaloo.me/833e6b',
+  'conferma': 'https://cruciani.formaloo.me/9errr0',
+};
 function goTo(s){
   SCREENS.forEach(x=>{document.getElementById('screen-'+x)?.classList.remove('active');document.getElementById('nav-'+x)?.classList.remove('active')});
   document.getElementById('screen-'+s)?.classList.add('active');
   document.getElementById('nav-'+s)?.classList.add('active');
   window.scrollTo(0,0);
+  // Reset iframe quando si naviga verso una schermata con form
+  if (IFRAME_URLS[s]) {
+    const iframe = document.getElementById('frame-'+s);
+    if (iframe) iframe.src = IFRAME_URLS[s];
+  }
 }
 
 // TOAST
