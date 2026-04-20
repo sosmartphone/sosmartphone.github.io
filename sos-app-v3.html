@@ -447,7 +447,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div class="rrow"><span class="rrl">Iscritto il</span><span class="rrv" id="chk-ref-data">—</span></div>
       <div class="rrow"><span class="rrl">Utilizzi precedenti</span><span class="rrv" id="chk-ref-usi">—</span></div>
       <div class="alert alert-s" style="margin-top:8px">✅ Codice valido — procedi con l'acquisto e poi vai su <strong>Conferma acquisto</strong> per accreditare i premi</div>
-      <button class="btn btn-black" style="margin-top:10px" onclick="goTo('conferma');document.getElementById('conf-codice').value=document.getElementById('chk-cod-val').textContent">→ Vai a Conferma acquisto</button>
+      <button class="btn btn-black" style="margin-top:10px" onclick="vaiAConfermaConCodice()">→ Vai a Conferma acquisto</button>
       <button class="btn btn-outline" style="margin-top:8px" onclick="resetCheck()">Nuovo check</button>
     </div>
   </div>
@@ -1634,6 +1634,12 @@ async function submitCheck(){
     toast('Errore connessione — riprova', 'err');
     console.error('Check referral error:', e);
   }
+}
+
+function vaiAConfermaConCodice(){
+  const cod = document.getElementById('chk-cod-val').textContent.trim();
+  goTo('conferma');
+  setTimeout(()=>{ document.getElementById('conf-codice').value = cod; }, 100);
 }
 
 function resetCheck(){
