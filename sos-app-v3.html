@@ -421,18 +421,52 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 </div>
 
 <!-- ══ CHECK ══ -->
-<div class="screen iframe-screen" id="screen-check">
-  <div class="formaloo-header">
-    <button class="bbtn" onclick="goTo('home')">←</button>
-    <div><div class="btitle">Check Programma Fedeltà</div><div class="bsub">Verifica codice amico</div></div>
+<div class="screen" id="screen-check">
+  <div class="bhdr"><button class="bbtn" onclick="goTo('home')">←</button><div><div class="btitle">Check Codice Referral</div><div class="bsub">Verifica che il codice amico sia valido</div></div></div>
+
+  <div class="card">
+    <div class="fg">
+      <label class="fl">Codice referral dell'amico</label>
+      <input type="text" class="fi" id="check-cod" placeholder="REF-XXXX##" autocomplete="off" style="letter-spacing:1px;font-weight:600;text-transform:uppercase" oninput="this.value=this.value.toUpperCase();resetCheckResult()">
+      <div class="hint">Il cliente ha ricevuto questo codice via WhatsApp dall'amico</div>
+    </div>
+    <div class="fg">
+      <label class="fl">Telefono nuovo cliente</label>
+      <input type="tel" class="fi" id="check-phone" placeholder="340 123 4567" autocomplete="off">
+      <div class="hint">Il numero di chi sta acquistando ora</div>
+    </div>
+    <button class="btn btn-black" onclick="submitCheck()" style="margin-top:4px">🔍 Verifica codice</button>
   </div>
-  <div class="formaloo-wrap">
-    <iframe class="formaloo-iframe" id="frame-check"
-      onload="javascript:parent.scrollTo(0,0);"
-      allowTransparency="true"
-      frameborder="0" scrolling="yes"
-      style="width:100%;border:none;flex:1;min-height:calc(100vh - 120px)"
-      src="https://cruciani.formaloo.me/833e6b"></iframe>
+
+  <div class="loading" id="check-load"><span class="spinner"></span>Verifico sul registro...</div>
+
+  <!-- RISULTATO OK -->
+  <div class="result" id="ris-check-ok">
+    <div class="rtop success">
+      <div><div class="rtop-lbl">Codice verificato ✓</div><div class="ramount" id="chk-cod-val">—</div></div>
+      <div class="ricon">🎁</div>
+    </div>
+    <div class="rbody">
+      <div class="rrow"><span class="rrl">Referrer (chi ha condiviso)</span><span class="rrv pos" id="chk-ref-nome">—</span></div>
+      <div class="rrow"><span class="rrl">Telefono referrer</span><span class="rrv" id="chk-ref-tel">—</span></div>
+      <div class="rrow"><span class="rrl">Iscritto il</span><span class="rrv" id="chk-ref-data">—</span></div>
+      <div class="rrow"><span class="rrl">Utilizzi precedenti</span><span class="rrv" id="chk-ref-usi">—</span></div>
+      <div class="alert alert-s" style="margin-top:8px">✅ Codice valido — procedi con l'acquisto e poi vai su <strong>Conferma acquisto</strong> per accreditare i premi</div>
+      <button class="btn btn-black" style="margin-top:10px" onclick="goTo('conferma')">→ Vai a Conferma acquisto</button>
+      <button class="btn btn-outline" style="margin-top:8px" onclick="resetCheck()">Nuovo check</button>
+    </div>
+  </div>
+
+  <!-- RISULTATO ERRORE -->
+  <div class="result" id="ris-check-err">
+    <div class="rtop danger">
+      <div><div class="rtop-lbl">Codice non trovato</div><div class="ramount" id="chk-err-cod" style="font-size:20px">—</div></div>
+      <div class="ricon">❌</div>
+    </div>
+    <div class="rbody">
+      <div class="alert alert-d">Il codice inserito non è presente nel registro iscrizioni. Verifica che il cliente lo abbia digitato correttamente (formato REF-XXXX##).</div>
+      <button class="btn btn-outline" style="margin-top:10px" onclick="resetCheck()">Riprova</button>
+    </div>
   </div>
 </div>
 
@@ -1484,30 +1518,79 @@ async function submitIscrizione(){
 }
 function resetIscrizione(){['iscr-nome','iscr-cognome','iscr-phone'].forEach(id=>document.getElementById(id).value='');document.getElementById('ris-iscr').classList.remove('show')}
 
-// CHECK
-async function submitCheck(){
-  const cod=document.getElementById('check-cod').value.trim().toUpperCase();
-  const phone=document.getElementById('check-phone').value.trim();
-  if(!cod||!phone){toast('Compila tutti i campi','err');return}
-  if(!cod.startsWith('REF-')){toast('Formato: REF-XXXX##','err');return}
-  document.getElementById('check-load').classList.add('show');
+// CHECK — lettura diretta Google Sheet tab Referral
+const CSV_REFERRAL = 'https://docs.google.com/spreadsheets/d/13qCrogKFqRBaMBKqRwB78CfDA5WDAG2n7Ggw4A39UWE/pub?gid=1270023066&single=true&output=csv';
+
+function resetCheckResult(){
   ['ris-check-ok','ris-check-err'].forEach(id=>document.getElementById(id).classList.remove('show'));
-  await wh(WH.check,{codice:cod,phone_nuovo_cliente:phone});
-  await new Promise(r=>setTimeout(r,800));
-  document.getElementById('check-load').classList.remove('show');
-  if(cod.length>=8){
-    document.getElementById('chk-cod-val').textContent=cod;
-    document.getElementById('chk-ref-val').textContent=cod.replace('REF-','').substring(0,4)+' (da CRM)';
-    document.getElementById('chk-cnt-val').textContent='— (da CRM)';
-    document.getElementById('ris-check-ok').classList.add('show');
-    toast('Codice valido','ok');
-  }else{
-    document.getElementById('chk-err-cod').textContent=cod;
-    document.getElementById('ris-check-err').classList.add('show');
-    toast('Non trovato','err');
+}
+
+async function submitCheck(){
+  const cod = document.getElementById('check-cod').value.trim().toUpperCase();
+  const phone = document.getElementById('check-phone').value.trim();
+  if(!cod || !phone){ toast('Compila tutti i campi','err'); return; }
+  if(!cod.startsWith('REF-')){ toast('Formato: REF-XXXX##','err'); return; }
+
+  document.getElementById('check-load').classList.add('show');
+  resetCheckResult();
+
+  try {
+    const resp = await fetch(CSV_REFERRAL + '&t=' + Date.now());
+    const text = await resp.text();
+    const righe = text.split('\n').slice(1); // salta header
+
+    // Cerca righe Iscrizione con questo codice (col E = index 4)
+    let trovato = null;
+    let usiCount = 0;
+
+    for(const riga of righe){
+      const cols = parseCSVLine(riga);
+      if(!cols || cols.length < 5) continue;
+      const tipo   = (cols[1]||'').trim();
+      const cliente= (cols[2]||'').trim();
+      const tel    = (cols[3]||'').trim();
+      const codice = (cols[4]||'').trim().toUpperCase();
+      const data   = (cols[0]||'').trim();
+
+      if(codice === cod){
+        if(tipo === 'Iscrizione' || tipo === 'iscrizione'){
+          trovato = { nome: cliente, tel, data, codice };
+        }
+        if(tipo === 'Check Codice' || tipo === 'check codice'){
+          usiCount++;
+        }
+      }
+    }
+
+    document.getElementById('check-load').classList.remove('show');
+
+    if(trovato){
+      // Invia webhook Pabbly con dati reali
+      await wh(WH.check, { codice: cod, phone_nuovo_cliente: phone, referrer: trovato.nome, referrer_tel: trovato.tel });
+
+      document.getElementById('chk-cod-val').textContent = cod;
+      document.getElementById('chk-ref-nome').textContent = trovato.nome || '—';
+      document.getElementById('chk-ref-tel').textContent  = trovato.tel  || '—';
+      document.getElementById('chk-ref-data').textContent = trovato.data  || '—';
+      document.getElementById('chk-ref-usi').textContent  = usiCount > 0 ? usiCount + ' volte' : 'Prima volta 🎉';
+      document.getElementById('ris-check-ok').classList.add('show');
+      toast('Codice valido ✓', 'ok');
+    } else {
+      document.getElementById('chk-err-cod').textContent = cod;
+      document.getElementById('ris-check-err').classList.add('show');
+      toast('Codice non trovato', 'err');
+    }
+  } catch(e) {
+    document.getElementById('check-load').classList.remove('show');
+    toast('Errore connessione — riprova', 'err');
+    console.error('Check referral error:', e);
   }
 }
-function resetCheck(){['check-cod','check-phone'].forEach(id=>document.getElementById(id).value='');['ris-check-ok','ris-check-err'].forEach(id=>document.getElementById(id).classList.remove('show'))}
+
+function resetCheck(){
+  ['check-cod','check-phone'].forEach(id=>document.getElementById(id).value='');
+  resetCheckResult();
+}
 
 // CONFERMA
 async function submitConferma(){
