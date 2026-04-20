@@ -475,6 +475,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <label class="fl">Codice referral usato</label>
       <input type="text" class="fi" id="conf-codice" placeholder="REF-XXXX##" autocomplete="off" style="letter-spacing:1px;font-weight:600;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
     </div>
+    <!-- Campi referrer nascosti — precompilati dal Check -->
+    <input type="hidden" id="conf-ref-nome">
+    <input type="hidden" id="conf-ref-tel">
     <div class="fg">
       <label class="fl">Nome nuovo cliente</label>
       <input type="text" class="fi" id="conf-nome" placeholder="Nome e cognome" autocomplete="off">
@@ -1632,8 +1635,14 @@ async function submitCheck(){
 
 function vaiAConfermaConCodice(){
   const cod = document.getElementById('chk-cod-val').textContent.trim();
+  const refNome = document.getElementById('chk-ref-nome').textContent.trim();
+  const refTel = document.getElementById('chk-ref-tel').textContent.trim();
   goTo('conferma');
-  setTimeout(()=>{ document.getElementById('conf-codice').value = cod; }, 100);
+  setTimeout(()=>{
+    document.getElementById('conf-codice').value = cod;
+    document.getElementById('conf-ref-nome').value = refNome;
+    document.getElementById('conf-ref-tel').value = refTel;
+  }, 100);
 }
 
 function resetCheck(){
@@ -1666,6 +1675,9 @@ async function submitConferma(){
 
   const oggi = new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
 
+  const refNome = document.getElementById('conf-ref-nome').value.trim();
+  const refTel  = document.getElementById('conf-ref-tel').value.trim();
+
   await wh(WH.conferma, {
     data: oggi,
     codice_referral: codice,
@@ -1673,6 +1685,8 @@ async function submitConferma(){
     telefono_nuovo_cliente: phone,
     importo_acquisto: importo,
     tipo_acquisto: tipo,
+    referrer_nome: refNome,
+    referrer_telefono: refTel,
     premio_nuovo_cliente: '5€',
     premio_referrer: '5€',
     importo_premio: 5
