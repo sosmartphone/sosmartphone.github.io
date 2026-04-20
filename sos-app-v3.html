@@ -1587,6 +1587,7 @@ async function submitCheck(){
     const resp = await fetch(CSV_REFERRAL + '&t=' + Date.now());
     const text = await resp.text();
     const righe = text.split('\n').slice(1);
+    console.log('CSV righe:', righe.length, righe);
 
     let trovato = null;
     let usiCount = 0;
@@ -1594,17 +1595,17 @@ async function submitCheck(){
     for(const riga of righe){
       const cols = parseCSVLine(riga);
       if(!cols || cols.length < 5) continue;
-      const tipo   = (cols[1]||'').trim();
+      const tipo   = (cols[1]||'').trim().toLowerCase().replace(/\s+/g,'');
       const cliente= (cols[2]||'').trim();
       const tel    = (cols[3]||'').trim();
-      const codice = (cols[4]||'').trim().toUpperCase();
+      const codice = (cols[4]||'').trim().toUpperCase().replace(/\s+/g,'');
       const data   = (cols[0]||'').trim();
 
       if(codice === cod){
-        if(tipo.toLowerCase() === 'iscrizione'){
+        if(tipo === 'iscrizione'){
           trovato = { nome: cliente, tel, data, codice };
         }
-        if(tipo.toLowerCase() === 'check codice'){
+        if(tipo === 'checkcodice' || tipo === 'check'){
           usiCount++;
         }
       }
@@ -1701,7 +1702,7 @@ async function submitConferma(){
   document.getElementById('ris-conf-importo').textContent = importo + '€';
   document.getElementById('ris-conf').classList.add('show');
   toast('Premi accreditati ✓','ok');
-}
+  setTimeout(()=>{ resetConferma(); goTo('home'); }, 4000);
 
 function resetConferma(){
   ['conf-codice','conf-nome','conf-phone','conf-importo'].forEach(id=>document.getElementById(id).value='');
