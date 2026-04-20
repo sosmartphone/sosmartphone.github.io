@@ -430,11 +430,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <input type="text" class="fi" id="check-cod" placeholder="REF-XXXX##" autocomplete="off" style="letter-spacing:1px;font-weight:600;text-transform:uppercase" oninput="this.value=this.value.toUpperCase();resetCheckResult()">
       <div class="hint">Il cliente ha ricevuto questo codice via WhatsApp dall'amico</div>
     </div>
-    <div class="fg">
-      <label class="fl">Telefono nuovo cliente</label>
-      <input type="tel" class="fi" id="check-phone" placeholder="340 123 4567" autocomplete="off">
-      <div class="hint">Il numero di chi sta acquistando ora</div>
-    </div>
     <button class="btn btn-black" onclick="submitCheck()" style="margin-top:4px">🔍 Verifica codice</button>
   </div>
 
@@ -1527,8 +1522,7 @@ function resetCheckResult(){
 
 async function submitCheck(){
   const cod = document.getElementById('check-cod').value.trim().toUpperCase();
-  const phone = document.getElementById('check-phone').value.trim();
-  if(!cod || !phone){ toast('Compila tutti i campi','err'); return; }
+  if(!cod){ toast('Inserisci il codice','err'); return; }
   if(!cod.startsWith('REF-')){ toast('Formato: REF-XXXX##','err'); return; }
 
   document.getElementById('check-load').classList.add('show');
@@ -1537,9 +1531,8 @@ async function submitCheck(){
   try {
     const resp = await fetch(CSV_REFERRAL + '&t=' + Date.now());
     const text = await resp.text();
-    const righe = text.split('\n').slice(1); // salta header
+    const righe = text.split('\n').slice(1);
 
-    // Cerca righe Iscrizione con questo codice (col E = index 4)
     let trovato = null;
     let usiCount = 0;
 
@@ -1553,10 +1546,10 @@ async function submitCheck(){
       const data   = (cols[0]||'').trim();
 
       if(codice === cod){
-        if(tipo === 'Iscrizione' || tipo === 'iscrizione'){
+        if(tipo.toLowerCase() === 'iscrizione'){
           trovato = { nome: cliente, tel, data, codice };
         }
-        if(tipo === 'Check Codice' || tipo === 'check codice'){
+        if(tipo.toLowerCase() === 'check codice'){
           usiCount++;
         }
       }
@@ -1565,9 +1558,7 @@ async function submitCheck(){
     document.getElementById('check-load').classList.remove('show');
 
     if(trovato){
-      // Invia webhook Pabbly con dati reali
-      await wh(WH.check, { codice: cod, phone_nuovo_cliente: phone, referrer: trovato.nome, referrer_tel: trovato.tel });
-
+      await wh(WH.check, { codice: cod, referrer: trovato.nome, referrer_tel: trovato.tel });
       document.getElementById('chk-cod-val').textContent = cod;
       document.getElementById('chk-ref-nome').textContent = trovato.nome || '—';
       document.getElementById('chk-ref-tel').textContent  = trovato.tel  || '—';
@@ -1588,7 +1579,7 @@ async function submitCheck(){
 }
 
 function resetCheck(){
-  ['check-cod','check-phone'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('check-cod').value='';
   resetCheckResult();
 }
 
