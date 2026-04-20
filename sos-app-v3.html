@@ -502,19 +502,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     </div>
   </div>
 
-  <div class="card">
-    <div class="slbl" style="margin-top:0">Premio nuovo cliente (5€)</div>
-    <div class="trow">
-      <button class="tbtn active" id="conf-premio-nc-ric" onclick="setPremiNuovo('Ricarica 5€')">📱 Ricarica 5€</button>
-      <button class="tbtn" id="conf-premio-nc-sco" onclick="setPremiNuovo('Sconto 5€')">🏷️ Sconto 5€</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="slbl" style="margin-top:0">Premio referrer (5€)</div>
-    <div class="trow">
-      <button class="tbtn active" id="conf-premio-ref-ric" onclick="setPremiReferrer('Ricarica 5€')">📱 Ricarica 5€</button>
-      <button class="tbtn" id="conf-premio-ref-sco" onclick="setPremiReferrer('Sconto 5€')">🏷️ Sconto 5€</button>
+  <div class="card" style="background:var(--gl);border:1px solid #bbf7d0">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px">Premi automatici</div>
+      <div style="font-size:13px;font-weight:600;color:var(--black);margin-top:3px">5€ nuovo cliente + 5€ referrer</div></div>
+      <div style="font-size:28px">🎁</div>
     </div>
   </div>
 
@@ -1649,19 +1641,6 @@ function resetCheck(){
 
 // CONFERMA
 // CONFERMA
-let premioNuovoCliente = 'Ricarica 5€';
-let premioReferrer = 'Ricarica 5€';
-
-function setPremiNuovo(tipo){
-  premioNuovoCliente = tipo;
-  document.getElementById('conf-premio-nc-ric').classList.toggle('active', tipo === 'Ricarica 5€');
-  document.getElementById('conf-premio-nc-sco').classList.toggle('active', tipo === 'Sconto 5€');
-}
-function setPremiReferrer(tipo){
-  premioReferrer = tipo;
-  document.getElementById('conf-premio-ref-ric').classList.toggle('active', tipo === 'Ricarica 5€');
-  document.getElementById('conf-premio-ref-sco').classList.toggle('active', tipo === 'Sconto 5€');
-}
 function checkImportoConferma(){
   const imp = parseFloat(document.getElementById('conf-importo').value)||0;
   document.getElementById('conf-importo-hint').style.display = imp > 0 && imp < 20 ? 'block' : 'none';
@@ -1692,8 +1671,8 @@ async function submitConferma(){
     telefono_nuovo_cliente: phone,
     importo_acquisto: importo,
     tipo_acquisto: tipo,
-    premio_nuovo_cliente: premioNuovoCliente,
-    premio_referrer: premioReferrer,
+    premio_nuovo_cliente: '5€',
+    premio_referrer: '5€',
     importo_premio: 5
   });
 
@@ -1701,8 +1680,8 @@ async function submitConferma(){
   document.getElementById('conf-load').classList.remove('show');
 
   document.getElementById('ris-conf-nc').textContent = nome;
-  document.getElementById('ris-conf-premio-nc').textContent = premioNuovoCliente;
-  document.getElementById('ris-conf-premio-ref').textContent = premioReferrer;
+  document.getElementById('ris-conf-premio-nc').textContent = '5€';
+  document.getElementById('ris-conf-premio-ref').textContent = '5€';
   document.getElementById('ris-conf-importo').textContent = importo + '€';
   document.getElementById('ris-conf').classList.add('show');
   toast('Premi accreditati ✓','ok');
@@ -1713,8 +1692,6 @@ function resetConferma(){
   document.getElementById('conf-tipo').value='';
   document.getElementById('conf-importo-hint').style.display='none';
   document.getElementById('ris-conf').classList.remove('show');
-  setPremiNuovo('Ricarica 5€');
-  setPremiReferrer('Ricarica 5€');
 }
 
 // SALDO
