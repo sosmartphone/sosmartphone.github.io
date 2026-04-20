@@ -447,7 +447,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div class="rrow"><span class="rrl">Iscritto il</span><span class="rrv" id="chk-ref-data">—</span></div>
       <div class="rrow"><span class="rrl">Utilizzi precedenti</span><span class="rrv" id="chk-ref-usi">—</span></div>
       <div class="alert alert-s" style="margin-top:8px">✅ Codice valido — procedi con l'acquisto e poi vai su <strong>Conferma acquisto</strong> per accreditare i premi</div>
-      <button class="btn btn-black" style="margin-top:10px" onclick="goTo('conferma')">→ Vai a Conferma acquisto</button>
+      <button class="btn btn-black" style="margin-top:10px" onclick="goTo('conferma');document.getElementById('conf-codice').value=document.getElementById('chk-cod-val').textContent">→ Vai a Conferma acquisto</button>
       <button class="btn btn-outline" style="margin-top:8px" onclick="resetCheck()">Nuovo check</button>
     </div>
   </div>
@@ -466,18 +466,76 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 </div>
 
 <!-- ══ CONFERMA ══ -->
-<div class="screen iframe-screen" id="screen-conferma">
-  <div class="formaloo-header">
-    <button class="bbtn" onclick="goTo('home')">←</button>
-    <div><div class="btitle">Conferma acquisto</div><div class="bsub">Accredita i premi</div></div>
+<div class="screen" id="screen-conferma">
+  <div class="bhdr"><button class="bbtn" onclick="goTo('home')">←</button><div><div class="btitle">Conferma acquisto</div><div class="bsub">Accredita i premi referral</div></div></div>
+
+  <div class="card">
+    <div class="slbl" style="margin-top:0">Dati acquisto</div>
+    <div class="fg">
+      <label class="fl">Codice referral usato</label>
+      <input type="text" class="fi" id="conf-codice" placeholder="REF-XXXX##" autocomplete="off" style="letter-spacing:1px;font-weight:600;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+    </div>
+    <div class="fg">
+      <label class="fl">Nome nuovo cliente</label>
+      <input type="text" class="fi" id="conf-nome" placeholder="Nome e cognome" autocomplete="off">
+    </div>
+    <div class="fg">
+      <label class="fl">Telefono nuovo cliente</label>
+      <input type="tel" class="fi" id="conf-phone" placeholder="340 123 4567" autocomplete="off">
+    </div>
+    <div class="fg">
+      <label class="fl">Importo acquisto (€)</label>
+      <input type="number" class="fi" id="conf-importo" placeholder="Es. 299" min="0" oninput="checkImportoConferma()">
+      <div class="hint" id="conf-importo-hint" style="color:var(--red);display:none">⚠️ Importo minimo 20€ per accreditare il premio</div>
+    </div>
+    <div class="fg">
+      <label class="fl">Tipo acquisto</label>
+      <select class="fi" id="conf-tipo">
+        <option value="">Seleziona...</option>
+        <option value="Smartphone usato">📱 Smartphone usato</option>
+        <option value="SIM Very Mobile">📶 SIM Very Mobile</option>
+        <option value="Riparazione">🔧 Riparazione</option>
+        <option value="Cover + vetro">🛡️ Cover + vetro</option>
+        <option value="Accessorio">🎧 Accessorio</option>
+        <option value="Altro">Altro</option>
+      </select>
+    </div>
   </div>
-  <div class="formaloo-wrap">
-    <iframe class="formaloo-iframe" id="frame-conferma"
-      onload="javascript:parent.scrollTo(0,0);"
-      allowTransparency="true"
-      frameborder="0" scrolling="yes"
-      style="width:100%;border:none;flex:1;min-height:calc(100vh - 120px)"
-      src="https://cruciani.formaloo.me/9errr0"></iframe>
+
+  <div class="card">
+    <div class="slbl" style="margin-top:0">Premio nuovo cliente (5€)</div>
+    <div class="trow">
+      <button class="tbtn active" id="conf-premio-nc-ric" onclick="setPremiNuovo('Ricarica 5€')">📱 Ricarica 5€</button>
+      <button class="tbtn" id="conf-premio-nc-sco" onclick="setPremiNuovo('Sconto 5€')">🏷️ Sconto 5€</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="slbl" style="margin-top:0">Premio referrer (5€)</div>
+    <div class="trow">
+      <button class="tbtn active" id="conf-premio-ref-ric" onclick="setPremiReferrer('Ricarica 5€')">📱 Ricarica 5€</button>
+      <button class="tbtn" id="conf-premio-ref-sco" onclick="setPremiReferrer('Sconto 5€')">🏷️ Sconto 5€</button>
+    </div>
+  </div>
+
+  <div class="loading" id="conf-load"><span class="spinner"></span>Registro e invio WhatsApp...</div>
+
+  <button class="btn btn-green" onclick="submitConferma()" style="margin-bottom:8px">✅ Conferma e accredita premi</button>
+
+  <!-- RISULTATO -->
+  <div class="result" id="ris-conf">
+    <div class="rtop success">
+      <div><div class="rtop-lbl">Premi accreditati ✓</div><div class="ramount">5€ + 5€</div></div>
+      <div class="ricon">🎁</div>
+    </div>
+    <div class="rbody">
+      <div class="rrow"><span class="rrl">Nuovo cliente</span><span class="rrv pos" id="ris-conf-nc">—</span></div>
+      <div class="rrow"><span class="rrl">Premio nuovo cliente</span><span class="rrv" id="ris-conf-premio-nc">—</span></div>
+      <div class="rrow"><span class="rrl">Premio referrer</span><span class="rrv" id="ris-conf-premio-ref">—</span></div>
+      <div class="rrow"><span class="rrl">Importo acquisto</span><span class="rrv" id="ris-conf-importo">—</span></div>
+      <div class="alert alert-s" style="margin-top:8px">✅ WhatsApp inviato a entrambi — premi registrati sul foglio</div>
+      <button class="btn btn-outline" style="margin-top:10px" onclick="resetConferma()">Nuova conferma</button>
+    </div>
   </div>
 </div>
 
@@ -1584,19 +1642,74 @@ function resetCheck(){
 }
 
 // CONFERMA
-async function submitConferma(){
-  const phone=document.getElementById('conf-phone').value.trim();
-  const tipo=document.getElementById('conf-tipo').value;
-  const imp=document.getElementById('conf-importo').value;
-  if(!phone||!tipo||!imp){toast('Compila tutti i campi','err');return}
-  document.getElementById('conf-load').classList.add('show');
-  await wh(WH.conferma,{phone_nuovo_cliente:phone,tipo_acquisto:tipo,importo:parseFloat(imp)});
-  await new Promise(r=>setTimeout(r,700));
-  document.getElementById('conf-load').classList.remove('show');
-  document.getElementById('ris-conf').classList.add('show');
-  toast('Premi accreditati','ok');
+// CONFERMA
+let premioNuovoCliente = 'Ricarica 5€';
+let premioReferrer = 'Ricarica 5€';
+
+function setPremiNuovo(tipo){
+  premioNuovoCliente = tipo;
+  document.getElementById('conf-premio-nc-ric').classList.toggle('active', tipo === 'Ricarica 5€');
+  document.getElementById('conf-premio-nc-sco').classList.toggle('active', tipo === 'Sconto 5€');
 }
-function resetConferma(){['conf-phone','conf-importo'].forEach(id=>document.getElementById(id).value='');document.getElementById('conf-tipo').value='';document.getElementById('ris-conf').classList.remove('show')}
+function setPremiReferrer(tipo){
+  premioReferrer = tipo;
+  document.getElementById('conf-premio-ref-ric').classList.toggle('active', tipo === 'Ricarica 5€');
+  document.getElementById('conf-premio-ref-sco').classList.toggle('active', tipo === 'Sconto 5€');
+}
+function checkImportoConferma(){
+  const imp = parseFloat(document.getElementById('conf-importo').value)||0;
+  document.getElementById('conf-importo-hint').style.display = imp > 0 && imp < 20 ? 'block' : 'none';
+}
+
+async function submitConferma(){
+  const codice  = document.getElementById('conf-codice').value.trim().toUpperCase();
+  const nome    = document.getElementById('conf-nome').value.trim();
+  const phone   = document.getElementById('conf-phone').value.trim();
+  const importo = parseFloat(document.getElementById('conf-importo').value)||0;
+  const tipo    = document.getElementById('conf-tipo').value;
+
+  if(!codice){ toast('Inserisci il codice referral','err'); return; }
+  if(!nome){   toast('Inserisci il nome cliente','err'); return; }
+  if(!phone){  toast('Inserisci il telefono','err'); return; }
+  if(!tipo){   toast('Seleziona il tipo acquisto','err'); return; }
+  if(importo < 20){ toast('Importo minimo 20€','err'); return; }
+
+  document.getElementById('conf-load').classList.add('show');
+  document.getElementById('ris-conf').classList.remove('show');
+
+  const oggi = new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+  await wh(WH.conferma, {
+    data: oggi,
+    codice_referral: codice,
+    nome_nuovo_cliente: nome,
+    telefono_nuovo_cliente: phone,
+    importo_acquisto: importo,
+    tipo_acquisto: tipo,
+    premio_nuovo_cliente: premioNuovoCliente,
+    premio_referrer: premioReferrer,
+    importo_premio: 5
+  });
+
+  await new Promise(r=>setTimeout(r,800));
+  document.getElementById('conf-load').classList.remove('show');
+
+  document.getElementById('ris-conf-nc').textContent = nome;
+  document.getElementById('ris-conf-premio-nc').textContent = premioNuovoCliente;
+  document.getElementById('ris-conf-premio-ref').textContent = premioReferrer;
+  document.getElementById('ris-conf-importo').textContent = importo + '€';
+  document.getElementById('ris-conf').classList.add('show');
+  toast('Premi accreditati ✓','ok');
+}
+
+function resetConferma(){
+  ['conf-codice','conf-nome','conf-phone','conf-importo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('conf-tipo').value='';
+  document.getElementById('conf-importo-hint').style.display='none';
+  document.getElementById('ris-conf').classList.remove('show');
+  setPremiNuovo('Ricarica 5€');
+  setPremiReferrer('Ricarica 5€');
+}
 
 // SALDO
 let sTimer;
