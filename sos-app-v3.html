@@ -1514,7 +1514,7 @@ async function submitIscrizione(){
 function resetIscrizione(){['iscr-nome','iscr-cognome','iscr-phone'].forEach(id=>document.getElementById(id).value='');document.getElementById('ris-iscr').classList.remove('show')}
 
 // CHECK — lettura diretta Google Sheet tab Referral
-const CSV_REFERRAL = 'https://docs.google.com/spreadsheets/d/13qCrogKFqRBaMBKqRwB78CfDA5WDAG2n7Ggw4A39UWE/pub?gid=1270023066&single=true&output=csv';
+const CSV_REFERRAL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQc0_8dqJFALQvaVDh1-E0-2wvrwd0UDKPMhTQnNvBIBDxYGZTGdwZZtzJVf68N2UJ9DHYiXigJSpHv/pub?gid=1270023066&single=true&output=csv';
 
 function resetCheckResult(){
   ['ris-check-ok','ris-check-err'].forEach(id=>document.getElementById(id).classList.remove('show'));
