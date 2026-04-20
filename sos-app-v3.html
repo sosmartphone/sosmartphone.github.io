@@ -1580,7 +1580,7 @@ async function submitCheck(){
 
 function vaiAConfermaConCodice(){
   const cod = document.getElementById('chk-cod-val').textContent.trim();
-  const url = 'https://cruciani.formaloo.me/9errr0?codice_referral=' + encodeURIComponent(cod);
+  const url = 'https://cruciani.formaloo.me/9errr0?prefill_codice_referral=' + encodeURIComponent(cod);
   document.getElementById('frame-conferma').src = url;
   goTo('conferma');
 }
