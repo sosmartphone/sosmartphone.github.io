@@ -1587,7 +1587,6 @@ async function submitCheck(){
     const resp = await fetch(CSV_REFERRAL + '&t=' + Date.now());
     const text = await resp.text();
     const righe = text.split('\n').slice(1);
-    console.log('CSV righe:', righe.length, righe);
 
     let trovato = null;
     let usiCount = 0;
