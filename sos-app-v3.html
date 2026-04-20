@@ -466,18 +466,70 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 </div>
 
 <!-- ══ CONFERMA ══ -->
-<div class="screen iframe-screen" id="screen-conferma">
-  <div class="formaloo-header">
-    <button class="bbtn" onclick="goTo('home')">←</button>
-    <div><div class="btitle">Conferma acquisto</div><div class="bsub">Accredita i premi</div></div>
+<div class="screen" id="screen-conferma">
+  <div class="bhdr"><button class="bbtn" onclick="goTo('home')">←</button><div><div class="btitle">Conferma acquisto</div><div class="bsub">Accredita i premi referral</div></div></div>
+
+  <div class="card">
+    <div class="slbl" style="margin-top:0">Dati acquisto</div>
+    <div class="fg">
+      <label class="fl">Codice referral usato</label>
+      <input type="text" class="fi" id="conf-codice" placeholder="REF-XXXX##" autocomplete="off" style="letter-spacing:1px;font-weight:600;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+    </div>
+    <div class="fg">
+      <label class="fl">Nome nuovo cliente</label>
+      <input type="text" class="fi" id="conf-nome" placeholder="Nome e cognome" autocomplete="off">
+    </div>
+    <div class="fg">
+      <label class="fl">Telefono nuovo cliente</label>
+      <input type="tel" class="fi" id="conf-phone" placeholder="340 123 4567" autocomplete="off">
+    </div>
+    <div class="fg">
+      <label class="fl">Importo acquisto (€)</label>
+      <input type="number" class="fi" id="conf-importo" placeholder="Es. 299" min="0" oninput="checkImportoConferma()">
+      <div class="hint" id="conf-importo-hint" style="color:var(--red);display:none">⚠️ Importo minimo 20€ per accreditare il premio</div>
+    </div>
+    <div class="fg">
+      <label class="fl">Tipo acquisto</label>
+      <select class="fi" id="conf-tipo">
+        <option value="">Seleziona...</option>
+        <option value="Smartphone usato">📱 Smartphone usato</option>
+        <option value="SIM Very Mobile">📶 SIM Very Mobile</option>
+        <option value="Riparazione">🔧 Riparazione</option>
+        <option value="Cover + vetro">🛡️ Cover + vetro</option>
+        <option value="Accessorio">🎧 Accessorio</option>
+        <option value="Altro">Altro</option>
+      </select>
+    </div>
   </div>
-  <div class="formaloo-wrap">
-    <iframe class="formaloo-iframe" id="frame-conferma"
-      onload="javascript:parent.scrollTo(0,0);"
-      allowTransparency="true"
-      frameborder="0" scrolling="yes"
-      style="width:100%;border:none;flex:1;min-height:calc(100vh - 120px)"
-      src="https://cruciani.formaloo.me/9errr0"></iframe>
+
+  <div class="card" style="background:var(--gl);border:1px solid #bbf7d0">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px">Premi automatici</div>
+        <div style="font-size:13px;font-weight:600;color:var(--black);margin-top:3px">5€ nuovo cliente + 5€ referrer</div>
+      </div>
+      <div style="font-size:28px">🎁</div>
+    </div>
+  </div>
+
+  <div class="loading" id="conf-load"><span class="spinner"></span>Registro e invio WhatsApp...</div>
+
+  <button class="btn btn-green" onclick="submitConferma()" style="margin-bottom:8px">✅ Conferma e accredita premi</button>
+
+  <div class="result" id="ris-conf">
+    <div class="rtop success">
+      <div><div class="rtop-lbl">Premi accreditati ✓</div><div class="ramount">5€ + 5€</div></div>
+      <div class="ricon">🎁</div>
+    </div>
+    <div class="rbody">
+      <div class="rrow"><span class="rrl">Nuovo cliente</span><span class="rrv pos" id="ris-conf-nc">—</span></div>
+      <div class="rrow"><span class="rrl">Codice usato</span><span class="rrv" id="ris-conf-codice">—</span></div>
+      <div class="rrow"><span class="rrl">Importo acquisto</span><span class="rrv" id="ris-conf-importo">—</span></div>
+      <div class="rrow"><span class="rrl">Premio nuovo cliente</span><span class="rrv pos">5€</span></div>
+      <div class="rrow"><span class="rrl">Premio referrer</span><span class="rrv pos">5€</span></div>
+      <div class="alert alert-s" style="margin-top:8px">✅ Dati inviati — WhatsApp in partenza per entrambi</div>
+      <button class="btn btn-outline" style="margin-top:10px" onclick="resetConferma()">Nuova conferma</button>
+    </div>
   </div>
 </div>
 
@@ -1325,7 +1377,7 @@ function toast(msg,type=''){const t=document.getElementById('toast');t.textConte
 const WH={
   iscrizione:'https://connect.pabbly.com/workflow/sendwebhookdata/[ID]',
   check:'https://connect.pabbly.com/workflow/sendwebhookdata/[ID]',
-  conferma:'https://connect.pabbly.com/workflow/sendwebhookdata/[ID]',
+  conferma:'https://connect.pabbly.com/webhook-listener/webhook/IjU3NjUwNTZiMDYzZjA0MzE1MjZkIg_3D_3D_pc/IjU3NjcwNTZmMDYzZjA0MzM1MjY1NTUzMjUxMzQi_pc',
   saldo:'https://connect.pabbly.com/workflow/sendwebhookdata/[ID]',
   rma:'https://connect.pabbly.com/workflow/sendwebhookdata/[ID]',
   rma_stato:'https://connect.pabbly.com/workflow/sendwebhookdata/[ID]',
@@ -1580,9 +1632,8 @@ async function submitCheck(){
 
 function vaiAConfermaConCodice(){
   const cod = document.getElementById('chk-cod-val').textContent.trim();
-  const url = 'https://cruciani.formaloo.me/9errr0?prefill_codice_referral=' + encodeURIComponent(cod);
-  document.getElementById('frame-conferma').src = url;
   goTo('conferma');
+  setTimeout(()=>{ document.getElementById('conf-codice').value = cod; }, 100);
 }
 
 function resetCheck(){
