@@ -695,6 +695,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
         <div style="font-size:10px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Prezzi dal listino</div>
         <div class="rrow"><span class="rrl">Ritiro Apple</span><span class="rrv" id="acq-ritiro-apple">—</span></div>
         <div class="rrow"><span class="rrl">Ritiro SOS (offerta cliente)</span><span class="rrv pos" style="font-size:18px;font-weight:700" id="acq-ritiro-sos">—</span></div>
+        <button class="btn btn-outline" style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px" onclick="apiBankMyCell()">
+          🌐 <span>Verifica su BankMyCell</span>
+        </button>
       </div>
 
       <div class="fg">
@@ -2698,6 +2701,18 @@ async function calcolaVendita() {
   document.getElementById('ris-vend-con').textContent = vend + '€';
   document.getElementById('ris-vend-mar').textContent = marg > 0 ? marg + '%' : '—';
   document.getElementById('ris-vend').classList.add('show');
+}
+
+// BANKMYCELL
+function apiBankMyCell(){
+  const modello = document.getElementById('acq-modello').value;
+  if(!modello){ toast('Seleziona prima il modello','err'); return; }
+  // Converte "iPhone 13 Pro Max" → "apple-iphone-13-pro-max"
+  const slug = 'apple-' + modello.toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+  const url = 'https://www.bankmycell.com/sell/' + slug;
+  window.open(url, '_blank');
 }
 
 // UPPERCASE
