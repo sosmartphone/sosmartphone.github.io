@@ -3725,12 +3725,16 @@ function copiaScript(){
   <!-- CHAT -->
   <div id="chat-messages" style="padding:0 16px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;min-height:200px;max-height:45vh"></div>
 
+  <!-- CHAT -->
+  <div id="chat-messages" style="padding:0 16px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;min-height:200px;max-height:40vh"></div>
   <!-- INPUT -->
-  <div style="padding:12px 16px;border-top:1px solid var(--g100);display:flex;gap:8px;align-items:flex-end">
-    <textarea id="chat-input" class="fi" placeholder="Descrivi il problema..." rows="2"
-      style="flex:1;resize:none;font-size:14px;line-height:1.4"
+  <div style="padding:16px;border-top:1px solid var(--g100);display:flex;flex-direction:column;gap:10px">
+    <textarea id="chat-input" class="fi" placeholder="Descrivi il problema tecnico..." rows="4"
+      style="width:100%;resize:none;font-size:16px;line-height:1.6;padding:12px;border-radius:10px;box-sizing:border-box"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();inviaMessaggio()}"></textarea>
-    <button class="btn btn-black" onclick="inviaMessaggio()" style="padding:10px 16px;min-width:60px">➤</button>
+    <button class="btn btn-black" onclick="inviaMessaggio()" style="width:100%;padding:14px;font-size:16px;border-radius:10px">
+      Invia domanda ➤
+    </button>
   </div>
 
   <div class="loading" id="chat-load" style="margin:0 16px 8px"><span class="spinner"></span>Elaborazione...</div>
