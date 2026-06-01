@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SOS App v4.0 - 01/06/2026 -->
+<!-- SOS App v4.1 - Vendi Smartphone nativo - 01/06/2026 -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -1241,7 +1241,7 @@ const r5=n=>Math.round(Math.max(n,0)/5)*5;
 const RIP={schermo:60,batteria:30,scocca:40,faceid:80,fotocamera:50};
 
 // NAV
-const SCREENS=['home','iscrizione','check','conferma','saldo','prev','rma','vs2','dashboard','storico','accessori','protezione','contratto','splitty','vendita-assistita','registro','assistente','assistenza-screen','database','report'];
+const SCREENS=['home','iscrizione','check','conferma','saldo','prev','rma','vs2','dashboard','storico','accessori','protezione','contratto','splitty','vendita-assistita','registro','assistente','assistenza-screen','database','report','vendi'];
 
 // DASHBOARD CSS aggiuntivo inline già nel CSS
 const CSV_LOG_VENDITE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQc0_8dqJFALQvaVDh1-E0-2wvrwd0UDKPMhTQnNvBIBDxYGZTGdwZZtzJVf68N2UJ9DHYiXigJSpHv/pub?gid=504867185&single=true&output=csv';
@@ -1364,6 +1364,7 @@ function goTo(s){
   }
   if(s === 'rma') loadRmaList();
   if(s === 'database'){ setTimeout(loadDatabase,100); }
+  if(s === 'vendi'){ setTimeout(()=>{ const d=document.getElementById('vs-data'); if(d&&!d.value) d.value=new Date().toISOString().split('T')[0]; resetVendiSmartphone(); },100); }
   if(s === 'report'){ setTimeout(initReport,100); }
   if(s === 'dashboard') aggiornaDashboard();
   if(s === 'vendita-sm'){
@@ -2701,6 +2702,188 @@ function stampaEtichettaDymo(){
     </div>
   </div>
 </div>
+<script>
+// ══ VENDI SMARTPHONE ═════════════════════════════════════════════
+let _vsCondizioneVendita = 'A';
+let _vsGaranziaMesi = 6;
+let _vsCostoAcquisto = 0;
+
+function setCondizioneVendita(g){
+  _vsCondizioneVendita = g;
+  ['A','B','C'].forEach(x =>
+    document.getElementById('vs-cond-'+x).classList.toggle('active', x===g)
+  );
+}
+
+function setGaranziaVendita(mesi){
+  _vsGaranziaMesi = mesi;
+  [6,12,0].forEach(x =>
+    document.getElementById('vs-gar-'+x).classList.toggle('active', x===mesi)
+  );
+}
+
+async function cercaImeiVendita(){
+  const imei = document.getElementById('vs-imei-search').value.trim();
+  if(!imei){ toast('Inserisci IMEI','err'); return; }
+  // Cerca in cache DB
+  if(!DB_CACHE.length) await loadDatabase();
+  const row = DB_CACHE.find(r => r.imei === imei && r.stato === 'magazzino');
+  if(row){
+    document.getElementById('vs-found-mod').textContent     = row.modello || '—';
+    document.getElementById('vs-found-storage').textContent = row.storage || '—';
+    document.getElementById('vs-found-colore').textContent  = row.colore  || '—';
+    document.getElementById('vs-found-costo').textContent   = '-€'+(row.prezzo_acquisto||0);
+    document.getElementById('vs-found').style.display    = 'block';
+    document.getElementById('vs-not-found').style.display = 'none';
+    // Autocompila form
+    document.getElementById('vs-modello').value =
+      (row.modello||'') + (row.storage?' '+row.storage:'') + (row.colore?' '+row.colore:'');
+    document.getElementById('vs-imei').value = imei;
+    _vsCostoAcquisto = parseFloat(row.prezzo_acquisto)||0;
+    aggiornaMargineVendita();
+    toast('Dispositivo trovato ✓','ok');
+  } else {
+    document.getElementById('vs-found').style.display    = 'none';
+    document.getElementById('vs-not-found').style.display = 'block';
+    document.getElementById('vs-imei').value = imei;
+    _vsCostoAcquisto = 0;
+    toast('Non in magazzino — compila manualmente','err');
+  }
+}
+
+function aggiornaMargineVendita(){
+  const pz = parseFloat(document.getElementById('vs-prezzo').value)||0;
+  const wrap = document.getElementById('vs-margine-wrap');
+  if(pz > 0 && _vsCostoAcquisto > 0){
+    const marg = pz - _vsCostoAcquisto;
+    const el = document.getElementById('vs-margine-val');
+    el.textContent = (marg>=0?'+':'')+marg.toFixed(0)+'€';
+    el.style.color = marg>=0?'var(--green)':'var(--red)';
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+async function registraVenditaSmartphone(){
+  const nome     = document.getElementById('vs-nome').value.trim();
+  const cognome  = document.getElementById('vs-cognome').value.trim();
+  const telefono = document.getElementById('vs-telefono').value.trim();
+  const modello  = document.getElementById('vs-modello').value.trim();
+  const imei     = document.getElementById('vs-imei').value.trim();
+  const prezzo   = parseFloat(document.getElementById('vs-prezzo').value)||0;
+  const batteria = document.getElementById('vs-batteria').value.trim();
+  const note     = document.getElementById('vs-note').value.trim();
+  const data     = document.getElementById('vs-data').value ||
+                   new Date().toISOString().split('T')[0];
+
+  if(!nome||!cognome){ toast('Inserisci nome e cognome','err'); return; }
+  if(!telefono)       { toast('Inserisci telefono cliente','err'); return; }
+  if(!modello)        { toast('Inserisci il modello','err'); return; }
+  if(!imei||imei.length<15){ toast('IMEI non valido (15 cifre)','err'); return; }
+  if(!prezzo)         { toast('Inserisci il prezzo di vendita','err'); return; }
+
+  document.getElementById('vs-load').classList.add('show');
+  document.getElementById('ris-vendi').classList.remove('show');
+
+  const oggi       = new Date();
+  const dataIT     = oggi.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const scadenza   = _vsGaranziaMesi > 0
+    ? new Date(oggi.setMonth(oggi.getMonth()+_vsGaranziaMesi))
+        .toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})
+    : 'Nessuna';
+  const numGar     = _vsGaranziaMesi > 0 ? 'GAR-'+Date.now().toString().slice(-6) : '—';
+  const margine    = prezzo - _vsCostoAcquisto;
+
+  // Diagnostica
+  const diag = getDiagResults();
+
+  const payload = {
+    tipo:            'vendita',
+    nome_cliente:    nome+' '+cognome,
+    telefono,
+    modello,
+    imei,
+    prezzo_vendita:  prezzo,
+    data_vendita:    dataIT,
+    batteria:        batteria ? batteria+'%' : '—',
+    condizione:      'Grado '+_vsCondizioneVendita,
+    garanzia_mesi:   _vsGaranziaMesi,
+    scadenza_garanzia: scadenza,
+    numero_garanzia: numGar,
+    note,
+    diagnostica_ok:  diag.ok.join(', ') || 'Tutti OK',
+    diagnostica_ko:  diag.ko.length ? diag.ko.join(', ') : 'Nessuno',
+    margine,
+    source: 'app_v4'
+  };
+
+  try {
+    // 1. Aggiorna stato nel database Google Sheets
+    if(_vsCostoAcquisto > 0){
+      await apiFetch(SHEETS_WRITE_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          tipo:'vendita', imei,
+          cliente: nome+' '+cognome,
+          tel_cliente: telefono,
+          prezzo_vendita: prezzo,
+          data_vendita: dataIT
+        })
+      }).catch(()=>{});
+    }
+
+    // 2. Webhook Pabbly → WhatsApp conferma
+    await wh('https://connect.pabbly.com/webhook-listener/webhook/IjU3NjUwNTZiMDYzZjA0MzE1MjZkIg_3D_3D_pc/IjU3NjcwNTZlMDYzNDA0Mzc1MjZmNTUzZDUxMzAi_pc', payload);
+
+    document.getElementById('vs-load').classList.remove('show');
+
+    // Mostra risultato
+    document.getElementById('ris-vendi-prezzo').textContent  = '€'+prezzo;
+    document.getElementById('ris-vendi-cliente').textContent = nome+' '+cognome;
+    document.getElementById('ris-vendi-modello').textContent = modello;
+    document.getElementById('ris-vendi-imei').textContent    = imei;
+    document.getElementById('ris-vendi-garanzia').textContent = _vsGaranziaMesi>0
+      ? _vsGaranziaMesi+' mesi (scad. '+scadenza+')' : 'Nessuna';
+    const margEl = document.getElementById('ris-vendi-margine');
+    margEl.textContent  = (margine>=0?'+':'')+margine.toFixed(0)+'€';
+    margEl.className    = 'rrv '+(margine>=0?'pos':'neg');
+    document.getElementById('ris-vendi').classList.add('show');
+
+    toast('Vendita registrata ✓','ok');
+    aggiornaDashboard();
+    // Ricarica database cache
+    setTimeout(loadDatabase, 1000);
+
+  } catch(e){
+    document.getElementById('vs-load').classList.remove('show');
+    toast('Errore registrazione','err');
+  }
+}
+
+function resetVendiSmartphone(){
+  ['vs-imei-search','vs-modello','vs-imei','vs-batteria','vs-note',
+   'vs-nome','vs-cognome','vs-telefono','vs-prezzo'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('vs-found').style.display     = 'none';
+  document.getElementById('vs-not-found').style.display = 'none';
+  document.getElementById('vs-margine-wrap').style.display = 'none';
+  document.getElementById('ris-vendi').classList.remove('show');
+  setCondizioneVendita('A');
+  setGaranziaVendita(6);
+  _vsCostoAcquisto = 0;
+  // Reset diagnostica — tutti verdi
+  document.querySelectorAll('#screen-vendi .diag-item').forEach(el=>{
+    el.classList.remove('ko'); el.classList.add('ok');
+  });
+  // Precompila data
+  const d = document.getElementById('vs-data');
+  if(d) d.value = new Date().toISOString().split('T')[0];
+}
+</script>
+
 </body>
 </html>`;
 
@@ -4479,6 +4662,156 @@ function resetChat(){
   </div>
 </div>
 
+<!-- ══ VENDI SMARTPHONE ══ -->
+<div class="screen" id="screen-vendi">
+  <div class="bhdr">
+    <button class="bbtn" onclick="goTo('home')">←</button>
+    <div><div class="btitle">Vendi Smartphone</div><div class="bsub">Registra vendita + garanzia</div></div>
+  </div>
+
+  <!-- CERCA IMEI DA MAGAZZINO -->
+  <div class="card">
+    <div style="font-size:11px;font-weight:700;color:var(--g600);margin-bottom:10px">🔍 CERCA DA MAGAZZINO</div>
+    <div style="display:flex;gap:8px">
+      <input type="text" class="fi" id="vs-imei-search" placeholder="IMEI dispositivo..."
+        style="flex:1;margin:0;font-family:monospace"
+        oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)">
+      <button onclick="cercaImeiVendita()" style="background:#111;color:white;border:none;border-radius:10px;padding:14px 16px;font-size:15px;cursor:pointer;flex-shrink:0">🔍</button>
+    </div>
+    <div id="vs-found" style="display:none;margin-top:10px;background:var(--gl);border:1px solid #bbf7d0;border-radius:var(--rsm);padding:10px">
+      <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:6px">✓ TROVATO IN MAGAZZINO</div>
+      <div class="rrow"><span class="rrl">Modello</span><span class="rrv" id="vs-found-mod">—</span></div>
+      <div class="rrow"><span class="rrl">Storage</span><span class="rrv" id="vs-found-storage">—</span></div>
+      <div class="rrow"><span class="rrl">Colore</span><span class="rrv" id="vs-found-colore">—</span></div>
+      <div class="rrow"><span class="rrl">Costo acquisto</span><span class="rrv neg" id="vs-found-costo">—</span></div>
+    </div>
+    <div id="vs-not-found" style="display:none;margin-top:8px">
+      <div class="alert alert-w">⚠️ IMEI non in magazzino — compila i dati manualmente sotto</div>
+    </div>
+  </div>
+
+  <!-- DATI DISPOSITIVO -->
+  <div class="card">
+    <div style="font-size:11px;font-weight:700;color:var(--g600);margin-bottom:10px">📱 DISPOSITIVO</div>
+    <div class="fg">
+      <label class="fl">Modello</label>
+      <input type="text" class="fi" id="vs-modello" placeholder="Es. iPhone 13 128GB Midnight" autocomplete="off">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="fg">
+        <label class="fl">IMEI</label>
+        <input type="text" class="fi" id="vs-imei" placeholder="354123456789012"
+          style="font-family:monospace;letter-spacing:1px"
+          oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)">
+      </div>
+      <div class="fg">
+        <label class="fl">Stato batteria %</label>
+        <input type="number" class="fi" id="vs-batteria" placeholder="Es. 89" min="0" max="100">
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Condizione</label>
+      <div class="trow">
+        <button class="tbtn active" id="vs-cond-A" onclick="setCondizioneVendita('A')">⭐ Grado A</button>
+        <button class="tbtn" id="vs-cond-B" onclick="setCondizioneVendita('B')">👍 Grado B</button>
+        <button class="tbtn" id="vs-cond-C" onclick="setCondizioneVendita('C')">✅ Nuovo</button>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Note (accessori inclusi, difetti...)</label>
+      <input type="text" class="fi" id="vs-note" placeholder="Es. Con scatola originale, caricatore">
+    </div>
+  </div>
+
+  <!-- DATI CLIENTE -->
+  <div class="card">
+    <div style="font-size:11px;font-weight:700;color:var(--g600);margin-bottom:10px">👤 CLIENTE</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="fg"><label class="fl">Nome</label>
+        <input type="text" class="fi" id="vs-nome" placeholder="Nome" autocomplete="off">
+      </div>
+      <div class="fg"><label class="fl">Cognome</label>
+        <input type="text" class="fi" id="vs-cognome" placeholder="Cognome" autocomplete="off">
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Telefono</label>
+      <input type="tel" class="fi" id="vs-telefono" placeholder="3401234567" autocomplete="off">
+    </div>
+  </div>
+
+  <!-- PREZZO E DATA -->
+  <div class="card">
+    <div style="font-size:11px;font-weight:700;color:var(--g600);margin-bottom:10px">💰 VENDITA</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="fg"><label class="fl">Prezzo vendita (€)</label>
+        <input type="number" class="fi" id="vs-prezzo" placeholder="Es. 399" min="0" step="5"
+          oninput="aggiornaMargineVendita()">
+      </div>
+      <div class="fg"><label class="fl">Data vendita</label>
+        <input type="date" class="fi" id="vs-data">
+      </div>
+    </div>
+    <!-- Margine live -->
+    <div id="vs-margine-wrap" style="display:none;background:var(--g50);border-radius:var(--rsm);padding:10px;text-align:center;margin-top:4px">
+      <div style="font-size:10px;color:var(--g400);text-transform:uppercase;margin-bottom:2px">Margine</div>
+      <div id="vs-margine-val" style="font-size:22px;font-weight:700">—</div>
+    </div>
+    <!-- Garanzia -->
+    <div class="fg" style="margin-top:8px">
+      <label class="fl">Garanzia</label>
+      <div class="trow">
+        <button class="tbtn active" id="vs-gar-6" onclick="setGaranziaVendita(6)">6 mesi</button>
+        <button class="tbtn" id="vs-gar-12" onclick="setGaranziaVendita(12)">12 mesi</button>
+        <button class="tbtn" id="vs-gar-0" onclick="setGaranziaVendita(0)">Nessuna</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIAGNOSTICA RAPIDA -->
+  <div class="card">
+    <div style="font-size:11px;font-weight:700;color:var(--g600);margin-bottom:10px">🔬 DIAGNOSTICA (tocca per cambiare stato)</div>
+    <div class="diag-grid">
+      <div class="diag-item ok" data-name="Touch" onclick="togDiag(this)">Touch</div>
+      <div class="diag-item ok" data-name="Display" onclick="togDiag(this)">Display</div>
+      <div class="diag-item ok" data-name="Batteria" onclick="togDiag(this)">Batteria</div>
+      <div class="diag-item ok" data-name="Face ID" onclick="togDiag(this)">Face ID</div>
+      <div class="diag-item ok" data-name="Fotocamera" onclick="togDiag(this)">Fotocam.</div>
+      <div class="diag-item ok" data-name="WiFi" onclick="togDiag(this)">WiFi</div>
+      <div class="diag-item ok" data-name="Altoparlante" onclick="togDiag(this)">Audio</div>
+      <div class="diag-item ok" data-name="SIM" onclick="togDiag(this)">SIM</div>
+      <div class="diag-item ok" data-name="Ricarica" onclick="togDiag(this)">Ricarica</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:6px;font-size:10px;color:var(--g400)">
+      <span>🟢 Verde = OK</span><span>🔴 Rosso = Difetto</span>
+    </div>
+  </div>
+
+  <div class="loading" id="vs-load"><span class="spinner"></span>Registrazione in corso...</div>
+  <button class="btn btn-green" onclick="registraVenditaSmartphone()" style="margin-bottom:8px">
+    🧾 Registra vendita
+  </button>
+
+  <!-- RISULTATO -->
+  <div class="result" id="ris-vendi">
+    <div class="rtop success">
+      <div>
+        <div class="rtop-lbl">Vendita registrata ✓</div>
+        <div class="ramount" id="ris-vendi-prezzo">—</div>
+      </div>
+      <div class="ricon">🧾</div>
+    </div>
+    <div class="rbody">
+      <div class="rrow"><span class="rrl">Cliente</span><span class="rrv pos" id="ris-vendi-cliente">—</span></div>
+      <div class="rrow"><span class="rrl">Modello</span><span class="rrv" id="ris-vendi-modello">—</span></div>
+      <div class="rrow"><span class="rrl">IMEI</span><span class="rrv" id="ris-vendi-imei" style="font-family:monospace;font-size:11px">—</span></div>
+      <div class="rrow"><span class="rrl">Garanzia</span><span class="rrv" id="ris-vendi-garanzia">—</span></div>
+      <div class="rrow"><span class="rrl">Margine</span><span class="rrv pos" id="ris-vendi-margine">—</span></div>
+      <div class="rrow"><span class="rrl">WhatsApp</span><span class="rrv pos">✓ Inviato</span></div>
+      <button class="btn btn-outline" style="margin-top:10px" onclick="resetVendiSmartphone()">Nuova vendita</button>
+    </div>
+  </div>
+</div>
+
 </div><!-- /app -->
 
 <!-- BARRA NAVIGAZIONE -->
@@ -4495,7 +4828,7 @@ function resetChat(){
     <span style="font-size:22px">🛠️</span>
     <span style="font-size:10px;color:#666">Assistenza</span>
   </button>
-  <button onclick="goTo('vs2')" style="background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 12px;cursor:pointer">
+  <button onclick="goTo('vendi')" style="background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 12px;cursor:pointer">
     <span style="font-size:22px">🧾</span>
     <span style="font-size:10px;color:#666">Vendita</span>
   </button>
@@ -5010,6 +5343,188 @@ function initReport(){
 
 
 
+
+<script>
+// ══ VENDI SMARTPHONE ═════════════════════════════════════════════
+let _vsCondizioneVendita = 'A';
+let _vsGaranziaMesi = 6;
+let _vsCostoAcquisto = 0;
+
+function setCondizioneVendita(g){
+  _vsCondizioneVendita = g;
+  ['A','B','C'].forEach(x =>
+    document.getElementById('vs-cond-'+x).classList.toggle('active', x===g)
+  );
+}
+
+function setGaranziaVendita(mesi){
+  _vsGaranziaMesi = mesi;
+  [6,12,0].forEach(x =>
+    document.getElementById('vs-gar-'+x).classList.toggle('active', x===mesi)
+  );
+}
+
+async function cercaImeiVendita(){
+  const imei = document.getElementById('vs-imei-search').value.trim();
+  if(!imei){ toast('Inserisci IMEI','err'); return; }
+  // Cerca in cache DB
+  if(!DB_CACHE.length) await loadDatabase();
+  const row = DB_CACHE.find(r => r.imei === imei && r.stato === 'magazzino');
+  if(row){
+    document.getElementById('vs-found-mod').textContent     = row.modello || '—';
+    document.getElementById('vs-found-storage').textContent = row.storage || '—';
+    document.getElementById('vs-found-colore').textContent  = row.colore  || '—';
+    document.getElementById('vs-found-costo').textContent   = '-€'+(row.prezzo_acquisto||0);
+    document.getElementById('vs-found').style.display    = 'block';
+    document.getElementById('vs-not-found').style.display = 'none';
+    // Autocompila form
+    document.getElementById('vs-modello').value =
+      (row.modello||'') + (row.storage?' '+row.storage:'') + (row.colore?' '+row.colore:'');
+    document.getElementById('vs-imei').value = imei;
+    _vsCostoAcquisto = parseFloat(row.prezzo_acquisto)||0;
+    aggiornaMargineVendita();
+    toast('Dispositivo trovato ✓','ok');
+  } else {
+    document.getElementById('vs-found').style.display    = 'none';
+    document.getElementById('vs-not-found').style.display = 'block';
+    document.getElementById('vs-imei').value = imei;
+    _vsCostoAcquisto = 0;
+    toast('Non in magazzino — compila manualmente','err');
+  }
+}
+
+function aggiornaMargineVendita(){
+  const pz = parseFloat(document.getElementById('vs-prezzo').value)||0;
+  const wrap = document.getElementById('vs-margine-wrap');
+  if(pz > 0 && _vsCostoAcquisto > 0){
+    const marg = pz - _vsCostoAcquisto;
+    const el = document.getElementById('vs-margine-val');
+    el.textContent = (marg>=0?'+':'')+marg.toFixed(0)+'€';
+    el.style.color = marg>=0?'var(--green)':'var(--red)';
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+async function registraVenditaSmartphone(){
+  const nome     = document.getElementById('vs-nome').value.trim();
+  const cognome  = document.getElementById('vs-cognome').value.trim();
+  const telefono = document.getElementById('vs-telefono').value.trim();
+  const modello  = document.getElementById('vs-modello').value.trim();
+  const imei     = document.getElementById('vs-imei').value.trim();
+  const prezzo   = parseFloat(document.getElementById('vs-prezzo').value)||0;
+  const batteria = document.getElementById('vs-batteria').value.trim();
+  const note     = document.getElementById('vs-note').value.trim();
+  const data     = document.getElementById('vs-data').value ||
+                   new Date().toISOString().split('T')[0];
+
+  if(!nome||!cognome){ toast('Inserisci nome e cognome','err'); return; }
+  if(!telefono)       { toast('Inserisci telefono cliente','err'); return; }
+  if(!modello)        { toast('Inserisci il modello','err'); return; }
+  if(!imei||imei.length<15){ toast('IMEI non valido (15 cifre)','err'); return; }
+  if(!prezzo)         { toast('Inserisci il prezzo di vendita','err'); return; }
+
+  document.getElementById('vs-load').classList.add('show');
+  document.getElementById('ris-vendi').classList.remove('show');
+
+  const oggi       = new Date();
+  const dataIT     = oggi.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const scadenza   = _vsGaranziaMesi > 0
+    ? new Date(oggi.setMonth(oggi.getMonth()+_vsGaranziaMesi))
+        .toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})
+    : 'Nessuna';
+  const numGar     = _vsGaranziaMesi > 0 ? 'GAR-'+Date.now().toString().slice(-6) : '—';
+  const margine    = prezzo - _vsCostoAcquisto;
+
+  // Diagnostica
+  const diag = getDiagResults();
+
+  const payload = {
+    tipo:            'vendita',
+    nome_cliente:    nome+' '+cognome,
+    telefono,
+    modello,
+    imei,
+    prezzo_vendita:  prezzo,
+    data_vendita:    dataIT,
+    batteria:        batteria ? batteria+'%' : '—',
+    condizione:      'Grado '+_vsCondizioneVendita,
+    garanzia_mesi:   _vsGaranziaMesi,
+    scadenza_garanzia: scadenza,
+    numero_garanzia: numGar,
+    note,
+    diagnostica_ok:  diag.ok.join(', ') || 'Tutti OK',
+    diagnostica_ko:  diag.ko.length ? diag.ko.join(', ') : 'Nessuno',
+    margine,
+    source: 'app_v4'
+  };
+
+  try {
+    // 1. Aggiorna stato nel database Google Sheets
+    if(_vsCostoAcquisto > 0){
+      await apiFetch(SHEETS_WRITE_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          tipo:'vendita', imei,
+          cliente: nome+' '+cognome,
+          tel_cliente: telefono,
+          prezzo_vendita: prezzo,
+          data_vendita: dataIT
+        })
+      }).catch(()=>{});
+    }
+
+    // 2. Webhook Pabbly → WhatsApp conferma
+    await wh('https://connect.pabbly.com/webhook-listener/webhook/IjU3NjUwNTZiMDYzZjA0MzE1MjZkIg_3D_3D_pc/IjU3NjcwNTZlMDYzNDA0Mzc1MjZmNTUzZDUxMzAi_pc', payload);
+
+    document.getElementById('vs-load').classList.remove('show');
+
+    // Mostra risultato
+    document.getElementById('ris-vendi-prezzo').textContent  = '€'+prezzo;
+    document.getElementById('ris-vendi-cliente').textContent = nome+' '+cognome;
+    document.getElementById('ris-vendi-modello').textContent = modello;
+    document.getElementById('ris-vendi-imei').textContent    = imei;
+    document.getElementById('ris-vendi-garanzia').textContent = _vsGaranziaMesi>0
+      ? _vsGaranziaMesi+' mesi (scad. '+scadenza+')' : 'Nessuna';
+    const margEl = document.getElementById('ris-vendi-margine');
+    margEl.textContent  = (margine>=0?'+':'')+margine.toFixed(0)+'€';
+    margEl.className    = 'rrv '+(margine>=0?'pos':'neg');
+    document.getElementById('ris-vendi').classList.add('show');
+
+    toast('Vendita registrata ✓','ok');
+    aggiornaDashboard();
+    // Ricarica database cache
+    setTimeout(loadDatabase, 1000);
+
+  } catch(e){
+    document.getElementById('vs-load').classList.remove('show');
+    toast('Errore registrazione','err');
+  }
+}
+
+function resetVendiSmartphone(){
+  ['vs-imei-search','vs-modello','vs-imei','vs-batteria','vs-note',
+   'vs-nome','vs-cognome','vs-telefono','vs-prezzo'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('vs-found').style.display     = 'none';
+  document.getElementById('vs-not-found').style.display = 'none';
+  document.getElementById('vs-margine-wrap').style.display = 'none';
+  document.getElementById('ris-vendi').classList.remove('show');
+  setCondizioneVendita('A');
+  setGaranziaVendita(6);
+  _vsCostoAcquisto = 0;
+  // Reset diagnostica — tutti verdi
+  document.querySelectorAll('#screen-vendi .diag-item').forEach(el=>{
+    el.classList.remove('ko'); el.classList.add('ok');
+  });
+  // Precompila data
+  const d = document.getElementById('vs-data');
+  if(d) d.value = new Date().toISOString().split('T')[0];
+}
+</script>
 
 </body>
 </html>
