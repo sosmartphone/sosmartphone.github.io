@@ -362,26 +362,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
 <!-- ══ HOME ══ -->
 <div class="screen active" id="screen-home">
-<div class="hero-title">Buongiorno,<br>cosa facciamo?</div>
-    <div class="hero-sub">Referral · Preventivi · RMA · Accessori</div>
-  </div>
-
-  <!-- DASHBOARD -->
-<div class="dash-val" id="dash-referral">—</div>
-      <div class="dash-lbl">Iscritti Fedeltà</div>
-    </div>
-    <div class="dash-card" onclick="goTo('rma');setRmaTab('pratiche')">
-      <div class="dash-icon">🔧</div>
-      <div class="dash-val" id="dash-rma">—</div>
-      <div class="dash-lbl">RMA Aperte</div>
-    </div>
-    <div class="dash-card" onclick="goTo('storico')">
-      <div class="dash-icon">📱</div>
-      <div class="dash-val" id="dash-vendite">—</div>
-      <div class="dash-lbl">Vendite oggi</div>
-    </div>
-  </div>
-  <div class="slbl">Referral</div>
+<div class="slbl">Referral</div>
   <div class="qgrid">
     <div class="qcard" onclick="goTo('iscrizione')"><div class="qcard-icon">✍️</div><div class="qcard-label">Iscrivi al Programma Fedeltà</div><div class="qcard-desc">Genera codice referral</div></div>
     <div class="qcard" onclick="goTo('check')"><div class="qcard-icon">🔍</div><div class="qcard-label">Check Programma Fedeltà</div><div class="qcard-desc">Verifica codice amico in negozio</div></div>
@@ -1216,6 +1197,7 @@ function goTo(s){
     if(dataEl && !dataEl.value) dataEl.value = new Date().toISOString().split('T')[0];
   }
   if(s === 'rma') loadRmaList();
+  if(s === 'assistenza-screen'){ mostraFormAssistenza(); document.getElementById('ass-lookup-result').style.display='none'; }
   if(s === 'database'){ setTimeout(loadDatabase,100); }
   if(s === 'vendi'){ setTimeout(()=>{ const d=document.getElementById('vs-data'); if(d&&!d.value) d.value=new Date().toISOString().split('T')[0]; resetVendiSmartphone(); },100); }
   if(s === 'report'){ setTimeout(initReport,100); }
