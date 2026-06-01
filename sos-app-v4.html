@@ -372,7 +372,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   <div class="slbl">Preventivi</div>
   <div class="qgrid">
     <div class="qcard" onclick="goTo('prev');setTab('assistenza')"><div class="qcard-icon">🔧</div><div class="qcard-label">Assistenza</div><div class="qcard-desc">Prezzo + margine</div></div>
-    <div class="qcard" onclick="goTo('prev');setTab('acquisto')"><div class="qcard-icon">📱</div><div class="qcard-label">Valuta iPhone</div><div class="qcard-desc">Offerta di acquisto</div></div>
+    <div class="qcard-label">Valuta iPhone</div><div class="qcard-desc">Offerta di acquisto</div></div>
   </div>
   <div class="slbl">Vendita</div>
   <div class="qgrid">
@@ -389,12 +389,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="qcard" onclick="goTo('database');setDbTab('magazzino')"><div class="qcard-icon">🗄️</div><div class="qcard-label">Database Smartphone</div><div class="qcard-desc">Acquisti · Vendite · Stock</div></div>
     <div class="qcard" onclick="goTo('report');initReport()"><div class="qcard-icon">📊</div><div class="qcard-label">Report Giornaliero</div><div class="qcard-desc">Margini · Movimenti · Magazzino</div></div>
   </div>
-  <div class="slbl">Registro Usati</div>
-  <div class="qgrid">
-    <div class="qcard" onclick="generaReportGiornaliero()"><div class="qcard-icon">📋</div><div class="qcard-label">Report giornaliero</div><div class="qcard-desc">PDF acquisti e vendite oggi</div></div>
-    <div class="qcard" onclick="generaStampaRegistro()"><div class="qcard-icon">🖨️</div><div class="qcard-label">Stampa registro</div><div class="qcard-desc">PDF da sovrapporre al foglio</div></div>
-  </div>
-
   <div class="slbl">Supporto</div>
   <div class="qgrid">
     <div class="qcard" onclick="goTo('assistente')"><div class="qcard-icon">🤖</div><div class="qcard-label">Assistente Tecnico</div><div class="qcard-desc">Problemi smartphone + soluzioni AI</div></div>
@@ -633,7 +627,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px">
         <div class="fg"><label class="fl">Prezzo listino (€)</label><input type="number" class="fi" id="ass-ric" placeholder="0" min="0" step="0.5"></div>
-        <div class="fg" id="ass-tempo-wrap"><label class="fl">Tempo (minuti)</label><input type="number" class="fi" id="ass-tempo" placeholder="30" min="5" step="5"></div>
       </div>
       <button class="btn btn-outline" style="margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:6px" onclick="window.open('https://www.foneday.com','_blank')">
         🔍 <span>Cerca su Foneday</span>
