@@ -1151,8 +1151,8 @@ async function aggiornaDashboard(){
     document.getElementById('db-iscr-tot').textContent = '—';
     document.getElementById('db-cod-oggi').textContent = '—';
     document.getElementById('db-premi').textContent = '—';
-    document.getElementById('dash-vendite').textContent = venditeOggiCount;
-    document.getElementById('dash-rma').textContent = rmaAperte||'0';
+    const dvEl=document.getElementById('dash-vendite'); if(dvEl) dvEl.textContent = venditeOggiCount;
+    const drEl=document.getElementById('dash-rma'); if(drEl) drEl.textContent = rmaAperte||'0';
     toast('Dashboard aggiornata','ok');
   } catch(e) {
     console.error('Dashboard error:',e);
@@ -2145,9 +2145,9 @@ function rimuoviVendita(i){storicoVendite.splice(i,1);renderStorico();}
 function aggiornaDashboardUI(){
   const oggi=new Date().toLocaleDateString('it-IT');
   document.getElementById('storico-data').textContent=oggi;
-  document.getElementById('dash-vendite').textContent=storicoVendite.length;
+  const dv2=document.getElementById('dash-vendite'); if(dv2) dv2.textContent=storicoVendite.length;
   const rmaAperte=document.querySelectorAll('.rma-item.aperta').length;
-  document.getElementById('dash-rma').textContent=rmaAperte||'0';
+  const dr2=document.getElementById('dash-rma'); if(dr2) dr2.textContent=rmaAperte||'0';
 }
 setInterval(aggiornaDashboardUI,5000);
 setTimeout(aggiornaDashboardUI,500);
