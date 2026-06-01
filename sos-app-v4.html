@@ -575,7 +575,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   </div>
 </div>
 
-
 <!-- ══ SALDO ══ -->
 <div class="screen" id="screen-saldo">
   <div class="bhdr"><button class="bbtn" onclick="goTo('home')">←</button><div><div class="btitle">Saldo cliente</div><div class="bsub">Premi e livello</div></div></div>
@@ -1048,7 +1047,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   </div>
 </div>
 
-
 <!-- ══ DASHBOARD ══ -->
 <div class="screen" id="screen-dashboard">
   <div class="bhdr"><button class="bbtn" onclick="goTo('home')">←</button><div><div class="btitle">Dashboard</div><div class="bsub">Riepilogo attività negozio</div></div></div>
@@ -1078,7 +1076,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   </div>
   <button class="btn btn-black" onclick="aggiornaDashboard()">🔄 Aggiorna dati</button>
 </div>
-
 
 <!-- ══ ACCESSORI ══ -->
 <div class="screen" id="screen-accessori">
@@ -1188,7 +1185,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <iframe onload="javascript:parent.scrollTo(0,0);" height="750" allowTransparency="true" frameborder="0" scrolling="yes" style="width:100%;border:none" src="https://cruciani.formaloo.me/2873gg" id="frame-protezione"></iframe>
   </div>
 </div>
-
 
 <div class="toast" id="toast"></div>
 
@@ -1311,34 +1307,7 @@ async function aggiornaDashboard(){
 // STORICO VENDITE (vedi funzioni corrette più avanti)
 
 // ACCESSORI
-const accTabs=['cover','vetro','carica','cavo','pack'];
-function setAccTab(tab){
-  accTabs.forEach(t=>document.getElementById('acc-'+t).style.display=t===tab?'block':'none');
-  document.querySelectorAll('#screen-accessori .tabs .tab').forEach((el,i)=>el.classList.toggle('active',accTabs[i]===tab));
-}
-function calcolaAccessorio(tipo){
-  let costo=0;
-  if(tipo==='pack'){
-    const c=parseFloat(document.getElementById('acc-pack-cover').value)||0;
-    const v=parseFloat(document.getElementById('acc-pack-vetro').value)||0;
-    costo=c+v;
-  }else{
-    costo=parseFloat(document.getElementById('acc-'+tipo+'-costo').value)||0;
-  }
-  if(!costo){toast('Inserisci il costo di acquisto','err');return}
-  const marg=parseInt(document.getElementById('acc-'+tipo+'-marg').value);
-  const prezzo=Math.floor(costo/(1-marg/100));
-  const margE=prezzo-costo;
-  const el=document.getElementById('acc-'+tipo+'-result');
-  el.innerHTML=`
-    <div style="margin-top:12px;background:var(--g50);border-radius:var(--rsm);padding:14px">
-      <div class="rrow"><span class="rrl">Costo acquisto</span><span class="rrv neg">-${Math.floor(costo)}€</span></div>
-      <div class="rrow"><span class="rrl">Margine ${marg}%</span><span class="rrv pos">+${Math.floor(margE)}€</span></div>
-      <div class="rrow" style="padding-top:8px"><span class="rrl" style="font-weight:700;color:var(--black)">Prezzo vendita</span><span class="rrv" style="font-size:22px;color:var(--black)">${prezzo}€</span></div>
-    </div>
-  `;
-}
-const IFRAME_URLS = {
+const accTabs=['cover','vetro','carica','cavo','pack'];const IFRAME_URLS = {
   'iscrizione': 'https://cruciani.formaloo.me/jdgph3',
   'vs2': 'https://cruciani.formaloo.me/9mvni5',
   'vendi': 'https://cruciani.formaloo.me/833e6b',
@@ -1653,11 +1622,6 @@ async function loadRmaList(){
     document.getElementById('rma-list').innerHTML = '<div style="color:var(--err);padding:10px">Errore caricamento pratiche</div>';
   }
 }
-
-function addRmaToList(num,modello,imei,difetto){
-  loadRmaList();
-}
-
 async function aggiornaStato(btn,nuovoStato,rmaId){
   const item=btn.closest('.rma-item');
   const num=item.querySelector('.rma-num').textContent;
@@ -1891,69 +1855,12 @@ function send_telegram_js(msg){
 }
 function genLink(cod){return'https://wa.me/?text=Ciao!+Ti+regalo+5%E2%82%AC+di+ricarica+da+SOS+Smartphone+a+Foligno+%F0%9F%93%B1+Usa+il+mio+codice+*'+cod+'*+e+ricevi+5%E2%82%AC+gratis!+Va+bene+per+SIM+Very+Mobile%2C+smartphone%2C+cover+vetro+o+acquisti+sopra+20%E2%82%AC.+Scrivici%3A+wa.me%2F393514068420'}
 
-// ── VENDI SMARTPHONE ──
-async function submitVendita(){
-  const nome=document.getElementById('vs-nome').value.trim();
-  const cognome=document.getElementById('vs-cognome').value.trim();
-  const telefono=document.getElementById('vs-telefono').value.trim();
-  const prezzo=document.getElementById('vs-prezzo').value.trim();
-  const modello=document.getElementById('vs-modello').value.trim();
-  const imei=document.getElementById('vs-imei').value.trim();
-  const batteria=document.getElementById('vs-batteria').value.trim();
-  const data=document.getElementById('vs-data').value;
-  if(!nome||!cognome){toast('Inserisci nome e cognome','err');return;}
-  if(!telefono){toast('Inserisci telefono','err');return;}
-  if(!prezzo){toast('Inserisci il prezzo','err');return;}
-  if(!imei){toast('Inserisci IMEI','err');return;}
-  document.getElementById('vs-load').classList.add('show');
-  document.getElementById('ris-vendita').classList.remove('show');
-  const payload={nome,cognome,telefono,prezzo_vendita:prezzo,modello,imei,batteria,data_vendita:data};
-  try {
-    await fetch(`${SERVER_BASE}/registra-vendita`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    await wh('https://connect.pabbly.com/webhook-listener/webhook/IjU3NjUwNTZiMDYzZjA0MzE1MjZkIg_3D_3D_pc/IjU3NjcwNTZlMDYzNDA0Mzc1MjZmNTUzZDUxMzAi_pc',payload);
-    document.getElementById('vs-load').classList.remove('show');
-    document.getElementById('ris-vs-importo').textContent='€'+prezzo;
-    document.getElementById('ris-vs-cliente').textContent=nome+' '+cognome;
-    document.getElementById('ris-vs-modello').textContent=modello||'—';
-    document.getElementById('ris-vs-imei').textContent=imei;
-    document.getElementById('ris-vs-batteria').textContent=batteria?batteria+'%':'—';
-    document.getElementById('ris-vendita').classList.add('show');
-    toast('Vendita registrata ✓','ok');
-  } catch(e){
-    document.getElementById('vs-load').classList.remove('show');
-    toast('Errore connessione','err');
-  }
-}
-function resetVendita(){
-  ['vs-nome','vs-cognome','vs-telefono','vs-prezzo','vs-modello','vs-imei','vs-batteria','vs-data']
-    .forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('ris-vendita').classList.remove('show');
-}
-
-// ISCRIZIONE
+// ── VENDI SMARTPHONE ──// ISCRIZIONE
 function genCod(nome){
   const n=(nome||'').toUpperCase().replace(/[^A-Z]/g,'').slice(0,4).padEnd(4,'X');
   const num=String(Math.floor(10+Math.random()*90));
   return 'REF-'+n+num;
-}
-async function submitIscrizione(){
-  const nome=document.getElementById('iscr-nome').value.trim();
-  const cognome=document.getElementById('iscr-cognome').value.trim();
-  const phone=document.getElementById('iscr-phone').value.trim();
-  if(!nome||!cognome||!phone){toast('Compila tutti i campi','err');return}
-  document.getElementById('iscr-load').classList.add('show');
-  const cod=genCod(nome);
-  await wh(WH.iscrizione,{nome,cognome,phone,codice:cod,link:genLink(cod)});
-  await new Promise(r=>setTimeout(r,700));
-  document.getElementById('iscr-load').classList.remove('show');
-  document.getElementById('iscr-cod-val').textContent=cod;
-  document.getElementById('iscr-phone-val').textContent=phone;
-  document.getElementById('ris-iscr').classList.add('show');
-  toast('Codice inviato','ok');
-}
-function resetIscrizione(){['iscr-nome','iscr-cognome','iscr-phone'].forEach(id=>document.getElementById(id).value='');document.getElementById('ris-iscr').classList.remove('show')}
-
-// CHECK — lettura diretta Google Sheet tab Referral
+}// CHECK — lettura diretta Google Sheet tab Referral
 const CSV_REFERRAL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQc0_8dqJFALQvaVDh1-E0-2wvrwd0UDKPMhTQnNvBIBDxYGZTGdwZZtzJVf68N2UJ9DHYiXigJSpHv/pub?gid=1270023066&single=true&output=csv';
 
 function resetCheckResult(){
@@ -2234,39 +2141,8 @@ function togDifetto(i){
   if(difettiChecked.has(i)){difettiChecked.delete(i);row.classList.remove('checked');box.textContent='';}
   else{difettiChecked.add(i);row.classList.add('checked');box.textContent='✓';}
 }
-function togCheck(el){el.classList.toggle('checked');el.querySelector('.cbox').textContent=el.classList.contains('checked')?'✓':''}
-
-// VENDITA
-function calcolaVendita(){
-  const costo=parseFloat(document.getElementById('vend-costo').value)||0;
-  const rip=parseFloat(document.getElementById('vend-rip').value)||0;
-  const tempo=parseFloat(document.getElementById('vend-tempo').value)||0;
-  const marg=parseInt(document.getElementById('vend-marg').value);
-  if(!costo){toast('Inserisci il costo di acquisto','err');return}
-  const fisso=(tempo/60)*COSTO_ORA;
-  const tot=costo+rip+fisso;
-  const netto=tot/(1-marg/100);
-  const iva=netto*0.22;
-  const pz=r5(netto+iva);
-  const mN=netto-tot;
-  document.getElementById('ris-vend-pz').textContent=pz+'€';
-  document.getElementById('ris-vend-cos').textContent='-'+f(costo);
-  document.getElementById('ris-vend-rip').textContent='-'+f(rip);
-  document.getElementById('ris-vend-fis').textContent='-'+f(fisso);
-  document.getElementById('ris-vend-iva').textContent='-'+f(iva);
-  document.getElementById('ris-vend-mar').textContent='+'+f(mN)+' ('+((mN/netto)*100).toFixed(0)+'%)';
-  document.getElementById('ris-vend-min').textContent=r5((tot/(1-0.15))*1.22)+'€';
-  document.getElementById('ris-vend-con').textContent=pz+'€';
-  document.getElementById('ris-vend-pre').textContent=r5((tot/(1-0.55))*1.22)+'€';
-  document.getElementById('ris-vend').classList.add('show');
-}
 
 // DIAGNOSTICA
-function togDiag(el){
-  el.classList.toggle('ok');
-  el.classList.toggle('ko');
-}
-
 function getDiagResults(){
   const results={ok:[],ko:[]};
   document.querySelectorAll('.diag-item').forEach(el=>{
@@ -2274,95 +2150,6 @@ function getDiagResults(){
     else results.ko.push(el.dataset.name);
   });
   return results;
-}
-
-// VENDITA SMARTPHONE
-function lookupImeiVendita(){
-  const imei=document.getElementById('vs-imei').value.trim();
-  if(!imei||imei.length<15){toast('IMEI non valido (15 cifre)','err');return}
-  // Per ora mostra selezione manuale — API si aggiunge dopo
-  document.getElementById('vs-modello-manual').style.display='block';
-  document.getElementById('vs-device-found').style.display='none';
-  toast('Seleziona modello manualmente','');
-}
-
-async function registraVendita(){
-  const nome=document.getElementById('vs-nome').value.trim();
-  const phone=document.getElementById('vs-phone').value.trim();
-  const imei=document.getElementById('vs-imei').value.trim();
-  const modello=document.getElementById('vs-modello').value||document.getElementById('vs-device-name').textContent;
-  const colore=document.getElementById('vs-colore').value;
-  const prezzo=document.getElementById('vs-prezzo').value;
-  const condizione=document.getElementById('vs-condizione').value;
-  const note=document.getElementById('vs-note').value;
-
-  if(!nome){toast('Inserisci nome cliente','err');return}
-  if(!phone){toast('Inserisci telefono','err');return}
-  if(!imei||imei.length<15){toast('IMEI non valido','err');return}
-  if(!modello||modello==='—'){toast('Seleziona il modello','err');return}
-  if(!prezzo){toast('Inserisci il prezzo','err');return}
-  if(!condizione){toast('Seleziona la condizione','err');return}
-
-  document.getElementById('vs-load').classList.add('show');
-
-  const oggi=new Date();
-  const dataVendita=oggi.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
-  const scadenzaGaranzia=new Date(oggi);
-  scadenzaGaranzia.setFullYear(scadenzaGaranzia.getFullYear()+1);
-  const dataScadenza=scadenzaGaranzia.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
-  const numGaranzia='GAR-'+Date.now().toString().slice(-6);
-
-  const diag=getDiagResults();
-
-  const payload={
-    nome_cliente:nome,
-    telefono:phone,
-    imei,modello,prezzo_vendita:parseFloat(prezzo),
-    data_vendita:dataVendita,
-    scadenza_garanzia:dataScadenza,
-    numero_garanzia:numGaranzia,
-    note,
-    diagnostica_ok:diag.ok.join(', '),
-    diagnostica_ko:diag.ko.length>0?diag.ko.join(', '):'Nessuno',
-    source:'app_ipad'
-  };
-
-  await wh(WH.vendita_sm, payload);
-  // Registra vendita in magazzino — lookup IMEI
-  if(imei){
-    fetch(SERVER_MAGAZZINO + '/vendita', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        imei: imei,
-        prezzo_vendita: parseFloat(prezzo),
-        data_vendita: new Date().toISOString().split('T')[0]
-      })
-    }).catch(()=>{});
-  }
-  await new Promise(r=>setTimeout(r,900));
-  document.getElementById('vs-load').classList.remove('show');
-
-  // Mostra risultato
-  document.getElementById('ris-vs-modello').textContent=modello;
-  document.getElementById('ris-vs-nome').textContent=nome;
-  document.getElementById('ris-vs-imei').textContent=imei;
-  document.getElementById('ris-vs-prezzo').textContent=parseFloat(prezzo).toFixed(0)+'€';
-  document.getElementById('ris-vs').classList.add('show');
-  toast('Vendita registrata!','ok');
-}
-
-function resetVenditaSm(){
-  ['vs-nome','vs-phone','vs-imei','vs-note','vs-prezzo'].forEach(id=>document.getElementById(id).value='');
-  ['vs-modello'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('vs-device-found').style.display='none';
-  document.getElementById('vs-modello-manual').style.display='none';
-  document.getElementById('ris-vs').classList.remove('show');
-  // reset diagnostica — tutti verdi
-  document.querySelectorAll('.diag-item').forEach(el=>{
-    el.classList.remove('ko');
-    el.classList.add('ok');
-  });
 }
 
 // LISTINO PREZZI DAL FOGLIO EXCEL
@@ -2418,25 +2205,6 @@ function setBrand(brand){
   document.getElementById('ass-ric').placeholder = brand==='iphone'?'Auto dal listino':'Costo ricambio €';
   document.getElementById('ris-ass').classList.remove('show');
 }
-
-function caricaListino(){
-  const modello = document.getElementById('ass-modello').value;
-  const listEl = document.getElementById('ass-listino');
-  const serviziEl = document.getElementById('ass-servizi-list');
-  if(!modello || !LISTINO[modello]){listEl.style.display='none';return;}
-  listEl.style.display='block';
-  document.getElementById('ass-tipo-ricambio').value='';
-  document.getElementById('ass-ric').value='';
-  renderServiziListino(modello, '');
-}
-
-function aggiornaPrezzoListino(){
-  const modello = document.getElementById('ass-modello').value;
-  const tipo = document.getElementById('ass-tipo-ricambio').value;
-  if(!modello || !LISTINO[modello]) return;
-  renderServiziListino(modello, tipo);
-}
-
 function renderServiziListino(modello, tipo){
   const prezzi = LISTINO[modello];
   const serviziEl = document.getElementById('ass-servizi-list');
@@ -2529,65 +2297,7 @@ setTimeout(aggiornaDashboardUI,500);
 
 // PIANO PROTEZIONE SOS
 let protFasciaSelezionata = null;
-let protPrezzoSelezionato = 0;
-
-function selezionaFascia(n, prezzo){
-  [1,2,3].forEach(i=>{
-    document.getElementById('fascia-'+i).classList.toggle('selected', i===n);
-  });
-  protFasciaSelezionata = n;
-  protPrezzoSelezionato = prezzo;
-  const labels = ['','fino a 300€','300€ — 500€','oltre 500€'];
-  document.getElementById('prot-riepilogo-fascia').textContent = 'Fascia '+n+' — '+labels[n];
-  document.getElementById('prot-riepilogo-prezzo').textContent = prezzo+'€';
-  document.getElementById('prot-form').style.display='block';
-  document.getElementById('ris-prot').classList.remove('show');
-}
-
-async function registraProtezione(){
-  const nome = document.getElementById('prot-nome').value.trim();
-  const phone = document.getElementById('prot-phone').value.trim();
-  const modello = document.getElementById('prot-modello').value;
-  const imei = document.getElementById('prot-imei').value.trim();
-  if(!nome){toast('Inserisci nome cliente','err');return}
-  if(!phone){toast('Inserisci telefono','err');return}
-  if(!modello){toast('Seleziona modello','err');return}
-  if(!protFasciaSelezionata){toast('Seleziona una fascia','err');return}
-
-  document.getElementById('prot-load').classList.add('show');
-
-  const oggi = new Date();
-  const dataAcquisto = oggi.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
-  const scadenza = new Date(oggi);
-  scadenza.setFullYear(scadenza.getFullYear()+1);
-  const dataScadenza = scadenza.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
-  const numProt = 'PROT-'+Date.now().toString().slice(-6);
-
-  await wh(WH.vendita_sm, {
-    tipo:'protezione_sos',
-    nome_cliente:nome, telefono:phone,
-    modello, imei,
-    fascia:protFasciaSelezionata,
-    prezzo:protPrezzoSelezionato,
-    data_acquisto:dataAcquisto,
-    scadenza:dataScadenza,
-    numero:numProt,
-    copre:'Schermo + Back Cover',
-    interventi:1
-  });
-
-  await new Promise(r=>setTimeout(r,800));
-  document.getElementById('prot-load').classList.remove('show');
-
-  document.getElementById('ris-prot-prezzo').textContent = protPrezzoSelezionato+'€';
-  document.getElementById('ris-prot-nome').textContent = nome;
-  document.getElementById('ris-prot-modello').textContent = modello;
-  document.getElementById('ris-prot-scadenza').textContent = dataScadenza;
-  document.getElementById('ris-prot').classList.add('show');
-  toast('Protezione attivata!','ok');
-}
-
-function resetProtezione(){
+let protPrezzoSelezionato = 0;function resetProtezione(){
   ['prot-nome','prot-phone','prot-imei'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('prot-modello').value='';
   document.getElementById('prot-form').style.display='none';
@@ -2620,7 +2330,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
   }, 1500);
 });
-
 
 function stampaEtichettaDymo(){
   const num   = document.getElementById('ris-rma-num').textContent;
@@ -3004,101 +2713,7 @@ function resetAcquisto() {
   });
 }
 
-// ── VENDITA ──────────────────────────────────────
-async function onCategoriaVendita() {
-  const cat = document.getElementById('vend-categoria').value;
-  const selModello = document.getElementById('vend-modello');
-  selModello.innerHTML = '<option value="">Caricamento...</option>';
-  document.getElementById('vend-capacita').innerHTML = '<option value="">—</option>';
-  document.getElementById('vend-connettivita-wrap').style.display = 'none';
-  document.getElementById('vend-prezzi-box').style.display = 'none';
-  if (!cat) return;
-
-  const righe = await caricaCategoria(cat);
-  const modelli = [...new Set(righe.map(r => r.modello).filter(Boolean))];
-  selModello.innerHTML = '<option value="">Seleziona modello...</option>';
-  modelli.forEach(m => { const o = document.createElement('option'); o.value = m; o.textContent = m; selModello.appendChild(o); });
-}
-
-async function onModelloVendita() {
-  const cat = document.getElementById('vend-categoria').value;
-  const modello = document.getElementById('vend-modello').value;
-  const selCap = document.getElementById('vend-capacita');
-  selCap.innerHTML = '<option value="">Seleziona capacità...</option>';
-  document.getElementById('vend-prezzi-box').style.display = 'none';
-  if (!modello) return;
-
-  const righe = await caricaCategoria(cat);
-  const filtrate = righe.filter(r => r.modello === modello);
-  const hasConn = filtrate.some(r => r.connettivita);
-
-  if (hasConn) {
-    document.getElementById('vend-connettivita-wrap').style.display = 'block';
-    const conn = [...new Set(filtrate.map(r => r.connettivita).filter(Boolean))];
-    const selConn = document.getElementById('vend-connettivita');
-    selConn.innerHTML = '<option value="">Tutte</option>';
-    conn.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; selConn.appendChild(o); });
-  } else {
-    document.getElementById('vend-connettivita-wrap').style.display = 'none';
-  }
-
-  const capacita = [...new Set(filtrate.map(r => r.capacita))];
-  capacita.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; selCap.appendChild(o); });
-}
-
-async function aggiornaPrezziVendita() {
-  const cat = document.getElementById('vend-categoria').value;
-  const modello = document.getElementById('vend-modello').value;
-  const capacita = document.getElementById('vend-capacita').value;
-  const conn = document.getElementById('vend-connettivita') ? document.getElementById('vend-connettivita').value : '';
-  const box = document.getElementById('vend-prezzi-box');
-  if (!capacita) { box.style.display = 'none'; return; }
-
-  const righe = await caricaCategoria(cat);
-  const riga = righe.find(r => r.modello === modello && r.capacita === capacita && (!conn || !r.connettivita || r.connettivita === conn));
-  if (!riga) { box.style.display = 'none'; return; }
-
-  let vend = 0, marg = 0;
-  if (gradoVendita === 'A') { vend = riga.vendA; marg = riga.margA; }
-  else if (gradoVendita === 'B') { vend = riga.vendB; marg = riga.margB; }
-  else { vend = riga.vendC; marg = 0; }
-
-  document.getElementById('vend-prezzo-sheet').textContent = vend + '€';
-  document.getElementById('vend-margine-sheet').textContent = marg > 0 ? marg + '%' : '—';
-  box.style.display = 'block';
-}
-
-function setGradoVendita(g) {
-  gradoVendita = g;
-  ['A','B','C'].forEach(x => document.getElementById('vend-grado-'+x).classList.toggle('active', x === g));
-  aggiornaPrezziVendita();
-}
-
-async function calcolaVendita() {
-  const cat = document.getElementById('vend-categoria').value;
-  const modello = document.getElementById('vend-modello').value;
-  const capacita = document.getElementById('vend-capacita').value;
-  const conn = document.getElementById('vend-connettivita') ? document.getElementById('vend-connettivita').value : '';
-  if (!capacita) { toast('Seleziona modello e capacità','err'); return; }
-
-  const righe = await caricaCategoria(cat);
-  const riga = righe.find(r => r.modello === modello && r.capacita === capacita && (!conn || !r.connettivita || r.connettivita === conn));
-  if (!riga) { toast('Prezzo non trovato','err'); return; }
-
-  let vend = 0, marg = 0;
-  if (gradoVendita === 'A') { vend = riga.vendA; marg = riga.margA; }
-  else if (gradoVendita === 'B') { vend = riga.vendB; marg = riga.margB; }
-  else { vend = riga.vendC; marg = 0; }
-
-  document.getElementById('ris-vend-pz').textContent = vend + '€';
-  document.getElementById('ris-vend-mod').textContent = modello + ' ' + capacita + (conn ? ' ' + conn : '');
-  document.getElementById('ris-vend-gra').textContent = 'Grado ' + gradoVendita;
-  document.getElementById('ris-vend-con').textContent = vend + '€';
-  document.getElementById('ris-vend-mar').textContent = marg > 0 ? marg + '%' : '—';
-  document.getElementById('ris-vend').classList.add('show');
-}
-
-// BANKMYCELL
+// ── VENDITA ──────────────────────────────────────// BANKMYCELL
 function apiBankMyCell(){
   const modello = document.getElementById('acq-modello').value;
   if(!modello){ toast('Seleziona prima il modello','err'); return; }
@@ -3134,170 +2749,12 @@ const WH_CONTRATTO = 'https://connect.pabbly.com/webhook-listener/webhook/IjU3Nj
 const SERVER_CONTRATTO = 'https://api.sosmartphone.net/genera-contratto';
 const SERVER_MAGAZZINO = 'https://api.sosmartphone.net/magazzino';
 const SERVER_OTP_GENERA = 'https://api.sosmartphone.net/genera-otp';
-const SERVER_OTP_VERIFICA = 'https://api.sosmartphone.net/verifica-otp';
-
-function toggleIban(){
-  const p = document.getElementById('con-pagamento').value;
-  document.getElementById('con-iban-wrap').style.display = p === 'BONIFICO' ? 'block' : 'none';
-}
-
-let _provaAcquisto = 'SI';
+const SERVER_OTP_VERIFICA = 'https://api.sosmartphone.net/verifica-otp';let _provaAcquisto = 'SI';
 function setProva(val){
   _provaAcquisto = val;
   document.getElementById('con-prova-si').classList.toggle('active', val === 'SI');
   document.getElementById('con-prova-no').classList.toggle('active', val === 'NO');
-}
-
-async function submitContratto(){
-  const nome     = document.getElementById('con-nome').value.trim();
-  const cognome  = document.getElementById('con-cognome').value.trim();
-  const articolo = document.getElementById('con-articolo').value.trim();
-  const imei     = document.getElementById('con-imei').value.trim();
-  const prezzo   = document.getElementById('con-prezzo').value.trim();
-
-  if(!nome||!cognome){ toast('Inserisci nome e cognome','err'); return; }
-  if(!articolo){ toast('Inserisci il modello','err'); return; }
-  if(!imei){ toast('Inserisci IMEI','err'); return; }
-  if(!prezzo){ toast('Inserisci il prezzo','err'); return; }
-
-  document.getElementById('con-load').classList.add('show');
-  document.getElementById('ris-contratto').classList.remove('show');
-
-  const data_contratto = document.getElementById('con-data').value || new Date().toISOString().split('T')[0];
-  const nr_pratica = data_contratto.replace(/-/g,'') + '-' + String(Date.now()).slice(-3);
-
-  const payload = {
-    nr_pratica:          nr_pratica,
-    acquirente_nome:     nome,
-    acquirente_cognome:  cognome,
-    acquirente_nato_a:   document.getElementById('con-nato').value.trim(),
-    acquirente_prov:     document.getElementById('con-prov').value.trim().toUpperCase(),
-    acquirente_residente:document.getElementById('con-residente').value.trim(),
-    acquirente_via:      document.getElementById('con-via').value.trim(),
-    acquirente_doc_tipo: document.getElementById('con-doc-tipo').value,
-    acquirente_doc_n:    document.getElementById('con-doc-n').value.trim().toUpperCase(),
-    acquirente_doc_rilasciato: document.getElementById('con-doc-ril').value.trim(),
-    acquirente_telefono: document.getElementById('con-tel').value.trim(),
-    acquirente_email:    document.getElementById('con-email').value.trim(),
-    acquirente_cf:       document.getElementById('con-cf').value.trim().toUpperCase(),
-    articolo:            articolo,
-    imei:                imei,
-    garanzia:            document.getElementById('con-garanzia').value.trim(),
-    prova_acquisto:      _provaAcquisto,
-    prezzo_numeri:       prezzo,
-    prezzo_lettere:      document.getElementById('con-prezzo-lettere').value.trim(),
-    pagamento:           document.getElementById('con-pagamento').value,
-    iban:                document.getElementById('con-iban').value.trim().toUpperCase(),
-    data_contratto:      data_contratto,
-  };
-
-  try {
-    // Manda a Pabbly → Crove genera PDF
-    fetch(WH_CONTRATTO, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-
-    // Registra acquisto in magazzino VPS
-    fetch(SERVER_MAGAZZINO + '/acquisto', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        data_acquisto: data_contratto,
-        nr_pratica:    nr_pratica,
-        modello:       articolo,
-        imei:          imei,
-        prezzo_acquisto: parseFloat(prezzo),
-        venditore:     nome + ' ' + cognome,
-        documento:     payload.acquirente_doc_n
-      })
-    }).catch(()=>{});
-
-    document.getElementById('con-load').classList.remove('show');
-    _conTelefono = payload.acquirente_telefono;
-    _conNumero   = nr_pratica;
-    document.getElementById('ris-con-numero').textContent = nr_pratica;
-    document.getElementById('ris-con-cliente').textContent = nome + ' ' + cognome;
-    document.getElementById('ris-con-articolo').textContent = articolo;
-    document.getElementById('ris-con-prezzo').textContent = prezzo + '€';
-    document.getElementById('ris-contratto').classList.add('show');
-    toast('Contratto inviato ✓','ok');
-
-  } catch(e) {
-    document.getElementById('con-load').classList.remove('show');
-    const msg = !navigator.onLine ? 'Nessuna connessione internet' : 'Errore invio dati — riprova';
-    toast(msg,'err');
-  }
-}
-
-async function inviaOTP(){
-  if(!_conTelefono){ toast('Nessun telefono cliente','err'); return; }
-  document.getElementById('otp-load').style.display = 'flex';
-  document.getElementById('btn-invia-otp').style.display = 'none';
-  try {
-    const resp = await fetch(SERVER_OTP_GENERA, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({telefono: _conTelefono, numero_contratto: _conNumero})
-    });
-    const result = await resp.json();
-    document.getElementById('otp-load').style.display = 'none';
-    if(result.status === 'ok'){
-      // Manda OTP via Pabbly WhatsApp
-      fetch(WH_CONTRATTO, {method:'POST',headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({tipo:'otp', telefono: _conTelefono, codice: result.codice, numero_contratto: _conNumero})});
-      document.getElementById('otp-input-section').style.display = 'block';
-      toast('OTP inviato via WhatsApp ✓','ok');
-    } else {
-      document.getElementById('btn-invia-otp').style.display = 'block';
-      toast('Errore invio OTP','err');
-    }
-  } catch(e) {
-    document.getElementById('otp-load').style.display = 'none';
-    document.getElementById('btn-invia-otp').style.display = 'block';
-    toast('Errore connessione','err');
-  }
-}
-
-async function verificaOTP(){
-  const codice = document.getElementById('con-otp-input').value.trim();
-  if(codice.length !== 6){ toast('Inserisci 6 cifre','err'); return; }
-  try {
-    const resp = await fetch(SERVER_OTP_VERIFICA, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({telefono: _conTelefono, codice: codice})
-    });
-    const result = await resp.json();
-    if(result.status === 'ok'){
-      document.getElementById('otp-success').style.display = 'block';
-      document.getElementById('otp-error').style.display = 'none';
-      document.getElementById('otp-input-section').style.display = 'none';
-      toast('Contratto firmato ✓','ok');
-    } else {
-      document.getElementById('otp-error').style.display = 'block';
-      toast('OTP non valido','err');
-    }
-  } catch(e) {
-    toast('Errore connessione','err');
-  }
-}
-
-function resetContratto(){
-  ['con-nome','con-cognome','con-nato','con-prov','con-residente','con-via',
-   'con-doc-n','con-doc-ril','con-tel','con-email','con-cf',
-   'con-articolo','con-imei','con-garanzia','con-prezzo','con-prezzo-lettere','con-iban']
-  .forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
-  // Reset data a oggi
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('con-data').value = today;
-  document.getElementById('con-iban-wrap').style.display = 'none';
-  document.getElementById('ris-contratto').classList.remove('show');
-  _conTelefono = ''; _conNumero = '';
-  setProva('SI');
-}
-</script>
+}</script>
 
 <!-- ══ VENDITA ASSISTITA ══ -->
 <div class="screen" id="screen-vendita-assistita">
@@ -4527,98 +3984,8 @@ function resetChat(){
   </button>
 </nav>
 
-
 <script>
-// ── DEMO: precompila form con dati realistici ──────────────────────────────
-function fillFormsDemo(){
-  const fill = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
-  const oggi = new Date().toISOString().split('T')[0];
-
-  // CHECK referral
-  fill('check-cod', 'REF-LUCA42');
-
-  // CONFERMA acquisto
-  fill('conf-codice', 'REF-LUCA42');
-  fill('conf-nome', 'Maria Bianchi');
-  fill('conf-phone', '3401234567');
-  fill('conf-importo', '299');
-  const confTipo = document.getElementById('conf-tipo');
-  if(confTipo) confTipo.value = 'Smartphone usato';
-
-  // RMA nuova pratica
-  fill('rma-imei', '354123456789012');
-  fill('rma-phone', '393331234567');
-  fill('rma-difetto', 'Schermo non risponde al tocco');
-  fill('rma-note', 'Il display funziona ma il touch non registra input');
-  fill('rma-password', '123456');
-  fill('rma-stima', '15/06/2026');
-
-  // ASSISTENZA
-  fill('ass-search', '354123456789012');
-  fill('ass-nome', 'Marco');
-  fill('ass-cognome', 'Rossi');
-  fill('ass-telefono', '3401234567');
-  fill('ass-mod-dispositivo', 'iPhone 13');
-  fill('ass-imei', '354123456789012');
-  fill('ass-difetto', 'Batteria si scarica in 4 ore');
-  fill('ass-note', 'Percentuale batteria 71%');
-  fill('ass-preventivo', '79');
-  fill('ass-stima', '10/06/2026');
-  fill('ass-password', '654321');
-  mostraFormAssistenza();
-
-  // CONTRATTO
-  fill('con-nome', 'Marco');
-  fill('con-cognome', 'Rossi');
-  fill('con-nato', 'Perugia');
-  fill('con-prov', 'PG');
-  fill('con-residente', 'Foligno (PG)');
-  fill('con-via', 'Via Roma 10');
-  const conDocTipo = document.getElementById('con-doc-tipo');
-  if(conDocTipo) conDocTipo.value = 'CI';
-  fill('con-doc-n', 'AB1234567');
-  fill('con-doc-ril', 'Comune di Foligno');
-  fill('con-tel', '3401234567');
-  fill('con-email', 'marco.rossi@email.it');
-  fill('con-cf', 'RSSMRC85M10G478Y');
-  fill('con-articolo', 'iPhone 13 128GB Midnight');
-  fill('con-imei', '354123456789012');
-  fill('con-garanzia', '12 mesi');
-  fill('con-prezzo', '399');
-  fill('con-prezzo-lettere', 'trecentonovantanove');
-  const conPag = document.getElementById('con-pagamento');
-  if(conPag) conPag.value = 'CONTANTI';
-  fill('con-data', oggi);
-
-  // PROTEZIONE
-  fill('prot-nome', 'Marco Rossi');
-  fill('prot-phone', '3401234567');
-  const protMod = document.getElementById('prot-modello');
-  if(protMod) protMod.value = 'iPhone 13';
-  fill('prot-imei', '354123456789012');
-
-  // SPLITTY PAY
-  fill('sp-importo', '399');
-  calcolaSplitty();
-
-  // STORICO VENDITA RAPIDA
-  const storTipo = document.getElementById('stor-tipo');
-  if(storTipo) storTipo.value = 'iPhone venduto';
-  fill('stor-importo', '399');
-  fill('stor-note', 'iPhone 13 128GB Midnight');
-
-  // PREVENTIVO ASSISTENZA
-  fill('ass-ric', '109');
-  fill('ass-tempo', '45');
-
-  // PREVENTIVO ACQUISTO
-  const acqCat = document.getElementById('acq-categoria');
-  if(acqCat) { acqCat.value = 'iPhone'; onCategoriaAcquisto(); }
-
-  toast('✅ Form precompilati con dati demo', 'ok');
-}
-</script>
-
+// ── DEMO: precompila form con dati realistici ──────────────────────────────</script>
 
 <script>
 // ══ DATABASE SMARTPHONE ══════════════════════════════════════════════
@@ -5021,10 +4388,6 @@ function initReport(){
 }
 </script>
 
-
-
-
-
 <script>
 // ══ VENDI SMARTPHONE ═════════════════════════════════════════════
 let _vsCondizioneVendita = 'A';
@@ -5044,36 +4407,6 @@ function setGaranziaVendita(mesi){
     document.getElementById('vs-gar-'+x).classList.toggle('active', x===mesi)
   );
 }
-
-async function cercaImeiVendita(){
-  const imei = document.getElementById('vs-imei-search').value.trim();
-  if(!imei){ toast('Inserisci IMEI','err'); return; }
-  // Cerca in cache DB
-  if(!DB_CACHE.length) await loadDatabase();
-  const row = DB_CACHE.find(r => r.imei === imei && r.stato === 'magazzino');
-  if(row){
-    document.getElementById('vs-found-mod').textContent     = row.modello || '—';
-    document.getElementById('vs-found-storage').textContent = row.storage || '—';
-    document.getElementById('vs-found-colore').textContent  = row.colore  || '—';
-    document.getElementById('vs-found-costo').textContent   = '-€'+(row.prezzo_acquisto||0);
-    document.getElementById('vs-found').style.display    = 'block';
-    document.getElementById('vs-not-found').style.display = 'none';
-    // Autocompila form
-    document.getElementById('vs-modello').value =
-      (row.modello||'') + (row.storage?' '+row.storage:'') + (row.colore?' '+row.colore:'');
-    document.getElementById('vs-imei').value = imei;
-    _vsCostoAcquisto = parseFloat(row.prezzo_acquisto)||0;
-    aggiornaMargineVendita();
-    toast('Dispositivo trovato ✓','ok');
-  } else {
-    document.getElementById('vs-found').style.display    = 'none';
-    document.getElementById('vs-not-found').style.display = 'block';
-    document.getElementById('vs-imei').value = imei;
-    _vsCostoAcquisto = 0;
-    toast('Non in magazzino — compila manualmente','err');
-  }
-}
-
 function aggiornaMargineVendita(){
   const pz = parseFloat(document.getElementById('vs-prezzo').value)||0;
   const wrap = document.getElementById('vs-margine-wrap');
@@ -5087,104 +4420,6 @@ function aggiornaMargineVendita(){
     wrap.style.display = 'none';
   }
 }
-
-async function registraVenditaSmartphone(){
-  const nome     = document.getElementById('vs-nome').value.trim();
-  const cognome  = document.getElementById('vs-cognome').value.trim();
-  const telefono = document.getElementById('vs-telefono').value.trim();
-  const modello  = document.getElementById('vs-modello').value.trim();
-  const imei     = document.getElementById('vs-imei').value.trim();
-  const prezzo   = parseFloat(document.getElementById('vs-prezzo').value)||0;
-  const batteria = document.getElementById('vs-batteria').value.trim();
-  const note     = document.getElementById('vs-note').value.trim();
-  const data     = document.getElementById('vs-data').value ||
-                   new Date().toISOString().split('T')[0];
-
-  if(!nome||!cognome){ toast('Inserisci nome e cognome','err'); return; }
-  if(!telefono)       { toast('Inserisci telefono cliente','err'); return; }
-  if(!modello)        { toast('Inserisci il modello','err'); return; }
-  if(!imei||imei.length<15){ toast('IMEI non valido (15 cifre)','err'); return; }
-  if(!prezzo)         { toast('Inserisci il prezzo di vendita','err'); return; }
-
-  document.getElementById('vs-load').classList.add('show');
-  document.getElementById('ris-vendi').classList.remove('show');
-
-  const oggi       = new Date();
-  const dataIT     = oggi.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
-  const scadenza   = _vsGaranziaMesi > 0
-    ? new Date(oggi.setMonth(oggi.getMonth()+_vsGaranziaMesi))
-        .toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})
-    : 'Nessuna';
-  const numGar     = _vsGaranziaMesi > 0 ? 'GAR-'+Date.now().toString().slice(-6) : '—';
-  const margine    = prezzo - _vsCostoAcquisto;
-
-  // Diagnostica
-  const diag = getDiagResults();
-
-  const payload = {
-    tipo:            'vendita',
-    nome_cliente:    nome+' '+cognome,
-    telefono,
-    modello,
-    imei,
-    prezzo_vendita:  prezzo,
-    data_vendita:    dataIT,
-    batteria:        batteria ? batteria+'%' : '—',
-    condizione:      'Grado '+_vsCondizioneVendita,
-    garanzia_mesi:   _vsGaranziaMesi,
-    scadenza_garanzia: scadenza,
-    numero_garanzia: numGar,
-    note,
-    diagnostica_ok:  diag.ok.join(', ') || 'Tutti OK',
-    diagnostica_ko:  diag.ko.length ? diag.ko.join(', ') : 'Nessuno',
-    margine,
-    source: 'app_v4'
-  };
-
-  try {
-    // 1. Aggiorna stato nel database Google Sheets
-    if(_vsCostoAcquisto > 0){
-      await apiFetch(SHEETS_WRITE_URL, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-          tipo:'vendita', imei,
-          cliente: nome+' '+cognome,
-          tel_cliente: telefono,
-          prezzo_vendita: prezzo,
-          data_vendita: dataIT
-        })
-      }).catch(()=>{});
-    }
-
-    // 2. Webhook Pabbly → WhatsApp conferma
-    await wh('https://connect.pabbly.com/webhook-listener/webhook/IjU3NjUwNTZiMDYzZjA0MzE1MjZkIg_3D_3D_pc/IjU3NjcwNTZlMDYzNDA0Mzc1MjZmNTUzZDUxMzAi_pc', payload);
-
-    document.getElementById('vs-load').classList.remove('show');
-
-    // Mostra risultato
-    document.getElementById('ris-vendi-prezzo').textContent  = '€'+prezzo;
-    document.getElementById('ris-vendi-cliente').textContent = nome+' '+cognome;
-    document.getElementById('ris-vendi-modello').textContent = modello;
-    document.getElementById('ris-vendi-imei').textContent    = imei;
-    document.getElementById('ris-vendi-garanzia').textContent = _vsGaranziaMesi>0
-      ? _vsGaranziaMesi+' mesi (scad. '+scadenza+')' : 'Nessuna';
-    const margEl = document.getElementById('ris-vendi-margine');
-    margEl.textContent  = (margine>=0?'+':'')+margine.toFixed(0)+'€';
-    margEl.className    = 'rrv '+(margine>=0?'pos':'neg');
-    document.getElementById('ris-vendi').classList.add('show');
-
-    toast('Vendita registrata ✓','ok');
-    aggiornaDashboard();
-    // Ricarica database cache
-    setTimeout(loadDatabase, 1000);
-
-  } catch(e){
-    document.getElementById('vs-load').classList.remove('show');
-    toast('Errore registrazione','err');
-  }
-}
-
 function resetVendiSmartphone(){
   ['vs-imei-search','vs-modello','vs-imei','vs-batteria','vs-note',
    'vs-nome','vs-cognome','vs-telefono','vs-prezzo'].forEach(id=>{
