@@ -1099,7 +1099,7 @@ const SCREENS=['home','iscrizione','check','conferma','saldo','prev','rma','vs2'
 // DASHBOARD CSS aggiuntivo inline già nel CSS
 const CSV_LOG_VENDITE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQc0_8dqJFALQvaVDh1-E0-2wvrwd0UDKPMhTQnNvBIBDxYGZTGdwZZtzJVf68N2UJ9DHYiXigJSpHv/pub?gid=504867185&single=true&output=csv';
 
-async function aggiornaDashboard(){
+async function aggiornaDashboard(silent=false){
   try {
     // Carica dati magazzino dal server
     const today = new Date().toISOString().split('T')[0];
@@ -1153,10 +1153,10 @@ async function aggiornaDashboard(){
     document.getElementById('db-premi').textContent = '—';
     const dvEl=document.getElementById('dash-vendite'); if(dvEl) dvEl.textContent = venditeOggiCount;
     const drEl=document.getElementById('dash-rma'); if(drEl) drEl.textContent = rmaAperte||'0';
-    toast('Dashboard aggiornata','ok');
+    if(!silent) toast('Dashboard aggiornata ✓','ok');
   } catch(e) {
     console.error('Dashboard error:',e);
-    toast('Errore dashboard','err');
+    if(!silent) toast('Errore dashboard','err');
   }
 }
 
@@ -2171,7 +2171,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   caricaListinoRiparazioni();
   // Carica dati dashboard in background all'avvio
   setTimeout(()=>{
-    aggiornaDashboard();
+    aggiornaDashboard(true);
     if(document.getElementById('reg-report-data') && !document.getElementById('reg-report-data').value){
       document.getElementById('reg-report-data').value = new Date().toISOString().split('T')[0];
     }
