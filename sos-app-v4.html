@@ -1173,6 +1173,7 @@ const accTabs=['cover','vetro','carica','cavo','pack'];const IFRAME_URLS = {
   'protezione': 'https://cruciani.formaloo.me/2873gg',
 };
 function goTo(s){
+  console.log('goTo chiamata con:', s);
   SCREENS.forEach(x=>{document.getElementById('screen-'+x)?.classList.remove('active');document.getElementById('nav-'+x)?.classList.remove('active')});
   document.getElementById('screen-'+s)?.classList.add('active');
   document.getElementById('nav-'+s)?.classList.add('active');
@@ -1197,7 +1198,11 @@ function goTo(s){
   if(s === 'database'){ setTimeout(loadDatabase,100); }
   if(s === 'vendi'){ setTimeout(()=>{ const d=document.getElementById('vs-data'); if(d&&!d.value) d.value=new Date().toISOString().split('T')[0]; resetVendiSmartphone(); },100); }
   if(s === 'report'){ setTimeout(initReport,100); }
-  if(s === 'dashboard') aggiornaDashboard();
+  if(s === 'dashboard'){
+    const dbEl = document.getElementById('screen-dashboard');
+    console.log('screen-dashboard element:', dbEl, 'classes:', dbEl?.className);
+    aggiornaDashboard();
+  }
   if(s === 'vendita-sm'){
     const d=document.getElementById('vs-data');
     if(d && !d.value) d.value=new Date().toISOString().split('T')[0];
