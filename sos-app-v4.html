@@ -2297,17 +2297,7 @@ setTimeout(aggiornaDashboardUI,500);
 
 // PIANO PROTEZIONE SOS
 let protFasciaSelezionata = null;
-let protPrezzoSelezionato = 0;function resetProtezione(){
-  ['prot-nome','prot-phone','prot-imei'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('prot-modello').value='';
-  document.getElementById('prot-form').style.display='none';
-  document.getElementById('ris-prot').classList.remove('show');
-  [1,2,3].forEach(i=>document.getElementById('fascia-'+i).classList.remove('selected'));
-  protFasciaSelezionata=null;
-  protPrezzoSelezionato=0;
-}
-
-// PIANO PROTEZIONE — iframe Formaloo
+let protPrezzoSelezionato = 0;// PIANO PROTEZIONE — iframe Formaloo
 document.addEventListener('DOMContentLoaded',()=>{
   const frame = document.getElementById('prot-formaloo-frame');
   const placeholder = document.getElementById('prot-placeholder');
