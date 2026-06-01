@@ -2701,500 +2701,6 @@ function stampaEtichettaDymo(){
     </div>
   </div>
 </div>
-
-<script>
-// ── DEMO: precompila form con dati realistici ──────────────────────────────
-function fillFormsDemo(){
-  const fill = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
-  const oggi = new Date().toISOString().split('T')[0];
-
-  // CHECK referral
-  fill('check-cod', 'REF-LUCA42');
-
-  // CONFERMA acquisto
-  fill('conf-codice', 'REF-LUCA42');
-  fill('conf-nome', 'Maria Bianchi');
-  fill('conf-phone', '3401234567');
-  fill('conf-importo', '299');
-  const confTipo = document.getElementById('conf-tipo');
-  if(confTipo) confTipo.value = 'Smartphone usato';
-
-  // RMA nuova pratica
-  fill('rma-imei', '354123456789012');
-  fill('rma-phone', '393331234567');
-  fill('rma-difetto', 'Schermo non risponde al tocco');
-  fill('rma-note', 'Il display funziona ma il touch non registra input');
-  fill('rma-password', '123456');
-  fill('rma-stima', '15/06/2026');
-
-  // ASSISTENZA
-  fill('ass-search', '354123456789012');
-  fill('ass-nome', 'Marco');
-  fill('ass-cognome', 'Rossi');
-  fill('ass-telefono', '3401234567');
-  fill('ass-mod-dispositivo', 'iPhone 13');
-  fill('ass-imei', '354123456789012');
-  fill('ass-difetto', 'Batteria si scarica in 4 ore');
-  fill('ass-note', 'Percentuale batteria 71%');
-  fill('ass-preventivo', '79');
-  fill('ass-stima', '10/06/2026');
-  fill('ass-password', '654321');
-  mostraFormAssistenza();
-
-  // CONTRATTO
-  fill('con-nome', 'Marco');
-  fill('con-cognome', 'Rossi');
-  fill('con-nato', 'Perugia');
-  fill('con-prov', 'PG');
-  fill('con-residente', 'Foligno (PG)');
-  fill('con-via', 'Via Roma 10');
-  const conDocTipo = document.getElementById('con-doc-tipo');
-  if(conDocTipo) conDocTipo.value = 'CI';
-  fill('con-doc-n', 'AB1234567');
-  fill('con-doc-ril', 'Comune di Foligno');
-  fill('con-tel', '3401234567');
-  fill('con-email', 'marco.rossi@email.it');
-  fill('con-cf', 'RSSMRC85M10G478Y');
-  fill('con-articolo', 'iPhone 13 128GB Midnight');
-  fill('con-imei', '354123456789012');
-  fill('con-garanzia', '12 mesi');
-  fill('con-prezzo', '399');
-  fill('con-prezzo-lettere', 'trecentonovantanove');
-  const conPag = document.getElementById('con-pagamento');
-  if(conPag) conPag.value = 'CONTANTI';
-  fill('con-data', oggi);
-
-  // PROTEZIONE
-  fill('prot-nome', 'Marco Rossi');
-  fill('prot-phone', '3401234567');
-  const protMod = document.getElementById('prot-modello');
-  if(protMod) protMod.value = 'iPhone 13';
-  fill('prot-imei', '354123456789012');
-
-  // SPLITTY PAY
-  fill('sp-importo', '399');
-  calcolaSplitty();
-
-  // STORICO VENDITA RAPIDA
-  const storTipo = document.getElementById('stor-tipo');
-  if(storTipo) storTipo.value = 'iPhone venduto';
-  fill('stor-importo', '399');
-  fill('stor-note', 'iPhone 13 128GB Midnight');
-
-  // PREVENTIVO ASSISTENZA
-  fill('ass-ric', '109');
-  fill('ass-tempo', '45');
-
-  // PREVENTIVO ACQUISTO
-  const acqCat = document.getElementById('acq-categoria');
-  if(acqCat) { acqCat.value = 'iPhone'; onCategoriaAcquisto(); }
-
-  toast('✅ Form precompilati con dati demo', 'ok');
-}
-</script>
-
-
-<script>
-// ══ DATABASE SMARTPHONE ══════════════════════════════════════════════
-
-let DB_CACHE = []; // cache locale dati magazzino
-let DB_PREZZO_ACQUISTO_CORRENTE = 0; // per calcolo margine live
-
-// ── TAB DATABASE ─────────────────────────────────────────────────────
-const DB_TABS = ['magazzino','acquisto','vendita','cerca'];
-function setDbTab(tab){
-  DB_TABS.forEach(t=>{
-    const el = document.getElementById('db-tab-'+t);
-    if(el) el.style.display = t===tab ? 'block' : 'none';
-  });
-  document.querySelectorAll('#screen-database .tabs .tab').forEach((el,i)=>{
-    el.classList.toggle('active', DB_TABS[i]===tab);
-  });
-  if(tab==='magazzino') loadDatabase();
-}
-
-// ── CARICA DATABASE ───────────────────────────────────────────────────
-async function loadDatabase(){
-  document.getElementById('db-load').classList.add('show');
-  document.getElementById('db-empty').style.display='none';
-  try {
-    const resp = await fetch(SHEETS_WRITE_URL+'?tipo=read');
-    const data = await resp.json();
-    document.getElementById('db-load').classList.remove('show');
-    if(data.status === 'ok'){
-      DB_CACHE = data.rows || [];
-      renderDatabase(DB_CACHE);
-    } else {
-      toast('Errore caricamento: '+data.msg,'err');
-    }
-  } catch(e){
-    document.getElementById('db-load').classList.remove('show');
-    // Fallback: prova CSV pubblico
-    await loadDatabaseCSV();
-  }
-}
-
-async function loadDatabaseCSV(){
-  try {
-    if(!SHEETS_CSV_MAGAZZINO || SHEETS_CSV_MAGAZZINO.includes('INCOLLA_ID')) return;
-    const resp = await fetch(SHEETS_CSV_MAGAZZINO+'&t='+Date.now());
-    const text = await resp.text();
-    const lines = text.split('\n').filter(l=>l.trim());
-    DB_CACHE = [];
-    for(let i=1;i<lines.length;i++){
-      const c = parseCSVLine(lines[i]);
-      if(!c[0]) continue;
-      DB_CACHE.push({
-        id:c[0],data:c[1],modello:c[2],imei:c[3],storage:c[4],colore:c[5],
-        prezzo_acquisto:parseFloat(c[6])||0,venditore:c[7],doc_venditore:c[8],
-        stato:c[9],data_vendita:c[10],cliente:c[11],tel_cliente:c[12],
-        prezzo_vendita:parseFloat(c[13])||0,margine:parseFloat(c[14])||0,note:c[15]
-      });
-    }
-    renderDatabase(DB_CACHE);
-  } catch(e){ toast('Errore lettura CSV','err'); }
-}
-
-function renderDatabase(rows){
-  const inMag   = rows.filter(r=>r.stato==='magazzino').length;
-  const venduti  = rows.filter(r=>r.stato==='venduto').length;
-  document.getElementById('db-count-mag').textContent  = inMag;
-  document.getElementById('db-count-vend').textContent = venduti;
-  document.getElementById('db-count-tot').textContent  = rows.length;
-
-  const tbody = document.getElementById('db-tbody');
-  if(!rows.length){
-    tbody.innerHTML = '';
-    document.getElementById('db-empty').style.display='block';
-    return;
-  }
-  // Mostra prima i dispositivi in magazzino
-  const sorted = [...rows].sort((a,b)=>{
-    if(a.stato==='magazzino' && b.stato!=='magazzino') return -1;
-    if(a.stato!=='magazzino' && b.stato==='magazzino') return 1;
-    return 0;
-  });
-  tbody.innerHTML = sorted.map(r=>`
-    <tr>
-      <td><b>${r.modello||'—'}</b><br><span style="font-size:9px;color:var(--g400)">${r.storage||''} ${r.colore||''}</span></td>
-      <td style="font-family:monospace;font-size:10px">${(r.imei||'—').slice(-6)}</td>
-      <td style="white-space:nowrap">€${r.prezzo_acquisto||0}</td>
-      <td><span class="stato-${r.stato==='magazzino'?'mag':r.stato==='venduto'?'vend':'rip'}">${r.stato==='magazzino'?'📦 Stock':r.stato==='venduto'?'✅ Venduto':'🔧 Rip.'}</span></td>
-    </tr>
-  `).join('');
-}
-
-// ── SALVA ACQUISTO ────────────────────────────────────────────────────
-async function salvaAcquisto(){
-  const modello = document.getElementById('db-acq-modello').value.trim();
-  const imei    = document.getElementById('db-acq-imei').value.trim();
-  const prezzo  = document.getElementById('db-acq-prezzo').value;
-  const venditore = document.getElementById('db-acq-venditore').value.trim();
-  const doc     = document.getElementById('db-acq-doc').value.trim();
-  if(!modello){ toast('Inserisci il modello','err'); return; }
-  if(!imei || imei.length<15){ toast('IMEI non valido (15 cifre)','err'); return; }
-  if(!prezzo){ toast('Inserisci il prezzo','err'); return; }
-  if(!venditore){ toast('Inserisci il nome del venditore','err'); return; }
-
-  document.getElementById('db-acq-load').classList.add('show');
-  document.getElementById('ris-db-acq').classList.remove('show');
-
-  const payload = {
-    tipo: 'acquisto',
-    modello,
-    imei,
-    storage:   document.getElementById('db-acq-storage').value,
-    colore:    document.getElementById('db-acq-colore').value.trim(),
-    prezzo_acquisto: parseFloat(prezzo),
-    venditore,
-    doc_venditore: doc,
-    data:      document.getElementById('db-acq-data').value || new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}),
-    note:      document.getElementById('db-acq-note').value.trim()
-  };
-
-  try {
-    const resp = await fetch(SHEETS_WRITE_URL, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-    const result = await resp.json();
-    document.getElementById('db-acq-load').classList.remove('show');
-    if(result.status === 'ok'){
-      document.getElementById('ris-db-acq-id').textContent  = result.id;
-      document.getElementById('ris-db-acq-mod').textContent = modello;
-      document.getElementById('ris-db-acq-imei').textContent = imei;
-      document.getElementById('ris-db-acq-pz').textContent = '-€'+prezzo;
-      document.getElementById('ris-db-acq').classList.add('show');
-      toast('Acquisto salvato ✓','ok');
-      // Aggiorna anche magazzino app
-      aggiornaDashboard();
-    } else if(result.status === 'duplicate'){
-      toast('IMEI già presente nel database!','err');
-    } else {
-      toast('Errore: '+result.msg,'err');
-    }
-  } catch(e){
-    document.getElementById('db-acq-load').classList.remove('show');
-    toast('Errore connessione — configura SHEETS_WRITE_URL','err');
-  }
-}
-
-function resetAcquistoDb(){
-  ['db-acq-modello','db-acq-imei','db-acq-prezzo','db-acq-venditore',
-   'db-acq-doc','db-acq-note','db-acq-colore'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  document.getElementById('db-acq-storage').value='';
-  document.getElementById('ris-db-acq').classList.remove('show');
-}
-
-// ── CERCA IMEI PER VENDITA ─────────────────────────────────────────────
-async function cercaImeiDb(){
-  const imei = document.getElementById('db-vend-imei').value.trim();
-  if(!imei){ toast('Inserisci IMEI','err'); return; }
-  // Prima cerca in cache locale
-  let row = DB_CACHE.find(r=>r.imei===imei && r.stato==='magazzino');
-  if(!row){
-    // Se cache vuota o non trovato, ricarica
-    await loadDatabase();
-    row = DB_CACHE.find(r=>r.imei===imei && r.stato==='magazzino');
-  }
-  if(row){
-    document.getElementById('db-vend-found-mod').textContent = row.modello + (row.storage?' '+row.storage:'');
-    document.getElementById('db-vend-found-pz').textContent  = '€'+row.prezzo_acquisto;
-    document.getElementById('db-vend-found').style.display = 'block';
-    DB_PREZZO_ACQUISTO_CORRENTE = parseFloat(row.prezzo_acquisto)||0;
-    aggiornaMargineLive();
-    toast('Dispositivo trovato ✓','ok');
-  } else {
-    document.getElementById('db-vend-found').style.display='none';
-    DB_PREZZO_ACQUISTO_CORRENTE=0;
-    toast('IMEI non trovato in magazzino','err');
-  }
-}
-
-function aggiornaMargineLive(){
-  const pz = parseFloat(document.getElementById('db-vend-prezzo').value)||0;
-  if(pz>0 && DB_PREZZO_ACQUISTO_CORRENTE>0){
-    const marg = pz - DB_PREZZO_ACQUISTO_CORRENTE;
-    const el = document.getElementById('db-margine-val');
-    el.textContent = (marg>=0?'+':'')+marg.toFixed(0)+'€';
-    el.style.color = marg>=0?'var(--green)':'var(--red)';
-    document.getElementById('db-margine-live').style.display='block';
-  }
-}
-
-// ── SALVA VENDITA ─────────────────────────────────────────────────────
-async function salvaVendita(){
-  const imei    = document.getElementById('db-vend-imei').value.trim();
-  const cliente = document.getElementById('db-vend-cliente').value.trim();
-  const tel     = document.getElementById('db-vend-tel').value.trim();
-  const prezzo  = document.getElementById('db-vend-prezzo').value;
-  if(!imei){ toast('Inserisci IMEI','err'); return; }
-  if(!cliente){ toast('Inserisci nome cliente','err'); return; }
-  if(!prezzo){ toast('Inserisci prezzo vendita','err'); return; }
-
-  document.getElementById('db-vend-load').classList.add('show');
-  document.getElementById('ris-db-vend').classList.remove('show');
-
-  const row = DB_CACHE.find(r=>r.imei===imei);
-  const payload = {
-    tipo: 'vendita',
-    imei,
-    cliente,
-    tel_cliente: tel,
-    prezzo_vendita: parseFloat(prezzo),
-    data_vendita: document.getElementById('db-vend-data').value || new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})
-  };
-
-  try {
-    const resp = await fetch(SHEETS_WRITE_URL, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-    const result = await resp.json();
-    document.getElementById('db-vend-load').classList.remove('show');
-    if(result.status === 'ok'){
-      const marg = result.margine||0;
-      document.getElementById('ris-db-vend-margine').textContent = (marg>=0?'+':'')+marg.toFixed(0)+'€';
-      document.getElementById('ris-db-vend-margine').style.color = marg>=0?'var(--green)':'var(--red)';
-      document.getElementById('ris-db-vend-mod').textContent = row?row.modello:'—';
-      document.getElementById('ris-db-vend-cliente').textContent = cliente;
-      document.getElementById('ris-db-vend-pz').textContent = '+€'+prezzo;
-      document.getElementById('ris-db-vend-acq').textContent = '-€'+(result.prezzo_acquisto||0);
-      document.getElementById('ris-db-vend').classList.add('show');
-      toast('Vendita salvata ✓','ok');
-      aggiornaDashboard();
-      await loadDatabase();
-    } else {
-      toast('Errore: '+result.msg,'err');
-    }
-  } catch(e){
-    document.getElementById('db-vend-load').classList.remove('show');
-    toast('Errore connessione','err');
-  }
-}
-
-function resetVenditaDb(){
-  ['db-vend-imei','db-vend-cliente','db-vend-tel','db-vend-prezzo'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  document.getElementById('db-vend-found').style.display='none';
-  document.getElementById('db-margine-live').style.display='none';
-  document.getElementById('ris-db-vend').classList.remove('show');
-  DB_PREZZO_ACQUISTO_CORRENTE=0;
-}
-
-// ── CERCA FULL TEXT ────────────────────────────────────────────────────
-async function cercaDb(){
-  const q = document.getElementById('db-search-input').value.trim().toLowerCase();
-  if(!q){ toast('Inserisci cosa cercare','err'); return; }
-  if(!DB_CACHE.length) await loadDatabase();
-  const risultati = DB_CACHE.filter(r=>
-    (r.modello||'').toLowerCase().includes(q) ||
-    (r.imei||'').includes(q) ||
-    (r.cliente||'').toLowerCase().includes(q) ||
-    (r.venditore||'').toLowerCase().includes(q)
-  );
-  const el = document.getElementById('db-search-results');
-  if(!risultati.length){
-    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--g400)">Nessun risultato per "'+q+'"</div>';
-    return;
-  }
-  el.innerHTML = risultati.map(r=>`
-    <div class="card" style="margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
-        <div>
-          <div style="font-size:14px;font-weight:700">${r.modello||'—'} ${r.storage||''}</div>
-          <div style="font-size:10px;color:var(--g400);font-family:monospace">${r.imei||'—'}</div>
-        </div>
-        <span class="stato-${r.stato==='magazzino'?'mag':r.stato==='venduto'?'vend':'rip'}">${r.stato}</span>
-      </div>
-      <div class="rrow"><span class="rrl">Acquistato da</span><span class="rrv">${r.venditore||'—'}</span></div>
-      <div class="rrow"><span class="rrl">Prezzo acquisto</span><span class="rrv neg">€${r.prezzo_acquisto||0}</span></div>
-      ${r.stato==='venduto'?`<div class="rrow"><span class="rrl">Venduto a</span><span class="rrv">${r.cliente||'—'}</span></div>
-      <div class="rrow"><span class="rrl">Prezzo vendita</span><span class="rrv pos">€${r.prezzo_vendita||0}</span></div>
-      <div class="rrow"><span class="rrl">Margine</span><span class="rrv ${parseFloat(r.margine)>=0?'pos':'neg'}">€${r.margine||0}</span></div>`:''}
-    </div>
-  `).join('');
-}
-
-// ══ REPORT GIORNALIERO ════════════════════════════════════════════════
-
-async function loadReport(){
-  const dataSel = document.getElementById('report-data-sel').value;
-  const oggi = new Date();
-  const dataTarget = dataSel
-    ? new Date(dataSel).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})
-    : oggi.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
-
-  document.getElementById('report-data-lbl').textContent = dataSel
-    ? new Date(dataSel).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})
-    : 'Oggi — '+dataTarget;
-
-  document.getElementById('report-load').classList.add('show');
-  document.getElementById('rep-margine-banner').style.display='none';
-  document.getElementById('rep-acq-section').style.display='none';
-  document.getElementById('rep-vend-section').style.display='none';
-  document.getElementById('rep-empty').style.display='none';
-
-  // Usa cache o ricarica
-  if(!DB_CACHE.length) await loadDatabase();
-
-  document.getElementById('report-load').classList.remove('show');
-
-  const acquisti = DB_CACHE.filter(r=>{
-    const d = (r.data||'').trim();
-    return d === dataTarget;
-  });
-  const vendite = DB_CACHE.filter(r=>{
-    const d = (r.data_vendita||'').trim();
-    return d === dataTarget && r.stato==='venduto';
-  });
-  const magazzino = DB_CACHE.filter(r=>r.stato==='magazzino');
-
-  // Calcola totali
-  const totAcq  = acquisti.reduce((s,r)=>s+(parseFloat(r.prezzo_acquisto)||0),0);
-  const totVend  = vendite.reduce((s,r)=>s+(parseFloat(r.prezzo_vendita)||0),0);
-  const totMarg  = vendite.reduce((s,r)=>s+(parseFloat(r.margine)||0),0);
-
-  document.getElementById('rep-n-acq').textContent   = acquisti.length;
-  document.getElementById('rep-n-vend').textContent  = vendite.length;
-  document.getElementById('rep-tot-acq').textContent = acquisti.length ? '-€'+totAcq.toFixed(0) : '€0';
-  document.getElementById('rep-tot-vend').textContent= vendite.length  ? '+€'+totVend.toFixed(0) : '€0';
-  document.getElementById('rep-mag-count').textContent = magazzino.length;
-
-  // Margine banner
-  if(vendite.length){
-    document.getElementById('rep-margine-val').textContent = (totMarg>=0?'+':'')+totMarg.toFixed(0)+'€';
-    document.getElementById('rep-margine-val').style.color = totMarg>=0?'var(--green)':'var(--red)';
-    document.getElementById('rep-margine-sub').textContent = vendite.length+' vendite · costo medio '+(totAcq/Math.max(acquisti.length,1)).toFixed(0)+'€';
-    document.getElementById('rep-margine-banner').style.display='flex';
-  }
-
-  // Lista acquisti del giorno
-  if(acquisti.length){
-    document.getElementById('rep-acq-list').innerHTML = acquisti.map(r=>`
-      <div class="rrow">
-        <span class="rrl"><b>${r.modello||'—'}</b>${r.storage?' '+r.storage:''}<br>
-          <span style="font-family:monospace;font-size:9px;color:var(--g400)">${r.imei||''}</span><br>
-          <span style="font-size:10px">da ${r.venditore||'—'}</span>
-        </span>
-        <span class="rrv neg" style="font-size:15px">-€${r.prezzo_acquisto||0}</span>
-      </div>
-    `).join('');
-    document.getElementById('rep-acq-section').style.display='block';
-  }
-
-  // Lista vendite del giorno
-  if(vendite.length){
-    document.getElementById('rep-vend-list').innerHTML = vendite.map(r=>`
-      <div class="rrow">
-        <span class="rrl"><b>${r.modello||'—'}</b>${r.storage?' '+r.storage:''}<br>
-          <span style="font-size:10px">a ${r.cliente||'—'}</span>
-        </span>
-        <div style="text-align:right">
-          <div class="rrv pos">+€${r.prezzo_vendita||0}</div>
-          <div style="font-size:10px;color:${parseFloat(r.margine)>=0?'var(--green)':'var(--red)'};font-weight:600">
-            marg ${parseFloat(r.margine)>=0?'+':''}€${r.margine||0}
-          </div>
-        </div>
-      </div>
-    `).join('');
-    document.getElementById('rep-vend-section').style.display='block';
-  }
-
-  // Magazzino corrente
-  if(magazzino.length){
-    document.getElementById('rep-mag-list').innerHTML = magazzino.map(r=>`
-      <div style="padding:6px 0;border-bottom:1px solid var(--g100);display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div style="font-size:12px;font-weight:600">${r.modello||'—'} ${r.storage||''}</div>
-          <div style="font-size:10px;color:var(--g400)">da ${r.data||'—'} · ${r.venditore||''}</div>
-        </div>
-        <div style="font-size:13px;font-weight:700;color:var(--amber)">€${r.prezzo_acquisto||0}</div>
-      </div>
-    `).join('');
-  } else {
-    document.getElementById('rep-mag-list').innerHTML = '<div style="text-align:center;padding:16px;color:var(--g400);font-size:12px">Magazzino vuoto</div>';
-  }
-
-  if(!acquisti.length && !vendite.length){
-    document.getElementById('rep-empty').style.display='block';
-  }
-}
-
-// Inizializza date picker al valore odierno quando si apre il report
-function initReport(){
-  const today = new Date().toISOString().split('T')[0];
-  const el = document.getElementById('report-data-sel');
-  if(el && !el.value) el.value = today;
-  loadReport();
-}
-</script>
-
 </body>
 </html>`;
 
@@ -5500,6 +5006,502 @@ function initReport(){
   loadReport();
 }
 </script>
+
+
+
+<script>
+// ── DEMO: precompila form con dati realistici ──────────────────────────────
+function fillFormsDemo(){
+  const fill = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
+  const oggi = new Date().toISOString().split('T')[0];
+
+  // CHECK referral
+  fill('check-cod', 'REF-LUCA42');
+
+  // CONFERMA acquisto
+  fill('conf-codice', 'REF-LUCA42');
+  fill('conf-nome', 'Maria Bianchi');
+  fill('conf-phone', '3401234567');
+  fill('conf-importo', '299');
+  const confTipo = document.getElementById('conf-tipo');
+  if(confTipo) confTipo.value = 'Smartphone usato';
+
+  // RMA nuova pratica
+  fill('rma-imei', '354123456789012');
+  fill('rma-phone', '393331234567');
+  fill('rma-difetto', 'Schermo non risponde al tocco');
+  fill('rma-note', 'Il display funziona ma il touch non registra input');
+  fill('rma-password', '123456');
+  fill('rma-stima', '15/06/2026');
+
+  // ASSISTENZA
+  fill('ass-search', '354123456789012');
+  fill('ass-nome', 'Marco');
+  fill('ass-cognome', 'Rossi');
+  fill('ass-telefono', '3401234567');
+  fill('ass-mod-dispositivo', 'iPhone 13');
+  fill('ass-imei', '354123456789012');
+  fill('ass-difetto', 'Batteria si scarica in 4 ore');
+  fill('ass-note', 'Percentuale batteria 71%');
+  fill('ass-preventivo', '79');
+  fill('ass-stima', '10/06/2026');
+  fill('ass-password', '654321');
+  mostraFormAssistenza();
+
+  // CONTRATTO
+  fill('con-nome', 'Marco');
+  fill('con-cognome', 'Rossi');
+  fill('con-nato', 'Perugia');
+  fill('con-prov', 'PG');
+  fill('con-residente', 'Foligno (PG)');
+  fill('con-via', 'Via Roma 10');
+  const conDocTipo = document.getElementById('con-doc-tipo');
+  if(conDocTipo) conDocTipo.value = 'CI';
+  fill('con-doc-n', 'AB1234567');
+  fill('con-doc-ril', 'Comune di Foligno');
+  fill('con-tel', '3401234567');
+  fill('con-email', 'marco.rossi@email.it');
+  fill('con-cf', 'RSSMRC85M10G478Y');
+  fill('con-articolo', 'iPhone 13 128GB Midnight');
+  fill('con-imei', '354123456789012');
+  fill('con-garanzia', '12 mesi');
+  fill('con-prezzo', '399');
+  fill('con-prezzo-lettere', 'trecentonovantanove');
+  const conPag = document.getElementById('con-pagamento');
+  if(conPag) conPag.value = 'CONTANTI';
+  fill('con-data', oggi);
+
+  // PROTEZIONE
+  fill('prot-nome', 'Marco Rossi');
+  fill('prot-phone', '3401234567');
+  const protMod = document.getElementById('prot-modello');
+  if(protMod) protMod.value = 'iPhone 13';
+  fill('prot-imei', '354123456789012');
+
+  // SPLITTY PAY
+  fill('sp-importo', '399');
+  calcolaSplitty();
+
+  // STORICO VENDITA RAPIDA
+  const storTipo = document.getElementById('stor-tipo');
+  if(storTipo) storTipo.value = 'iPhone venduto';
+  fill('stor-importo', '399');
+  fill('stor-note', 'iPhone 13 128GB Midnight');
+
+  // PREVENTIVO ASSISTENZA
+  fill('ass-ric', '109');
+  fill('ass-tempo', '45');
+
+  // PREVENTIVO ACQUISTO
+  const acqCat = document.getElementById('acq-categoria');
+  if(acqCat) { acqCat.value = 'iPhone'; onCategoriaAcquisto(); }
+
+  toast('✅ Form precompilati con dati demo', 'ok');
+}
+</script>
+
+
+<script>
+// ══ DATABASE SMARTPHONE ══════════════════════════════════════════════
+
+let DB_CACHE = []; // cache locale dati magazzino
+let DB_PREZZO_ACQUISTO_CORRENTE = 0; // per calcolo margine live
+
+// ── TAB DATABASE ─────────────────────────────────────────────────────
+const DB_TABS = ['magazzino','acquisto','vendita','cerca'];
+function setDbTab(tab){
+  DB_TABS.forEach(t=>{
+    const el = document.getElementById('db-tab-'+t);
+    if(el) el.style.display = t===tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('#screen-database .tabs .tab').forEach((el,i)=>{
+    el.classList.toggle('active', DB_TABS[i]===tab);
+  });
+  if(tab==='magazzino') loadDatabase();
+}
+
+// ── CARICA DATABASE ───────────────────────────────────────────────────
+async function loadDatabase(){
+  document.getElementById('db-load').classList.add('show');
+  document.getElementById('db-empty').style.display='none';
+  try {
+    const resp = await fetch(SHEETS_WRITE_URL+'?tipo=read');
+    const data = await resp.json();
+    document.getElementById('db-load').classList.remove('show');
+    if(data.status === 'ok'){
+      DB_CACHE = data.rows || [];
+      renderDatabase(DB_CACHE);
+    } else {
+      toast('Errore caricamento: '+data.msg,'err');
+    }
+  } catch(e){
+    document.getElementById('db-load').classList.remove('show');
+    // Fallback: prova CSV pubblico
+    await loadDatabaseCSV();
+  }
+}
+
+async function loadDatabaseCSV(){
+  try {
+    if(!SHEETS_CSV_MAGAZZINO || SHEETS_CSV_MAGAZZINO.includes('INCOLLA_ID')) return;
+    const resp = await fetch(SHEETS_CSV_MAGAZZINO+'&t='+Date.now());
+    const text = await resp.text();
+    const lines = text.split('\n').filter(l=>l.trim());
+    DB_CACHE = [];
+    for(let i=1;i<lines.length;i++){
+      const c = parseCSVLine(lines[i]);
+      if(!c[0]) continue;
+      DB_CACHE.push({
+        id:c[0],data:c[1],modello:c[2],imei:c[3],storage:c[4],colore:c[5],
+        prezzo_acquisto:parseFloat(c[6])||0,venditore:c[7],doc_venditore:c[8],
+        stato:c[9],data_vendita:c[10],cliente:c[11],tel_cliente:c[12],
+        prezzo_vendita:parseFloat(c[13])||0,margine:parseFloat(c[14])||0,note:c[15]
+      });
+    }
+    renderDatabase(DB_CACHE);
+  } catch(e){ toast('Errore lettura CSV','err'); }
+}
+
+function renderDatabase(rows){
+  const inMag   = rows.filter(r=>r.stato==='magazzino').length;
+  const venduti  = rows.filter(r=>r.stato==='venduto').length;
+  document.getElementById('db-count-mag').textContent  = inMag;
+  document.getElementById('db-count-vend').textContent = venduti;
+  document.getElementById('db-count-tot').textContent  = rows.length;
+
+  const tbody = document.getElementById('db-tbody');
+  if(!rows.length){
+    tbody.innerHTML = '';
+    document.getElementById('db-empty').style.display='block';
+    return;
+  }
+  // Mostra prima i dispositivi in magazzino
+  const sorted = [...rows].sort((a,b)=>{
+    if(a.stato==='magazzino' && b.stato!=='magazzino') return -1;
+    if(a.stato!=='magazzino' && b.stato==='magazzino') return 1;
+    return 0;
+  });
+  tbody.innerHTML = sorted.map(r=>`
+    <tr>
+      <td><b>${r.modello||'—'}</b><br><span style="font-size:9px;color:var(--g400)">${r.storage||''} ${r.colore||''}</span></td>
+      <td style="font-family:monospace;font-size:10px">${(r.imei||'—').slice(-6)}</td>
+      <td style="white-space:nowrap">€${r.prezzo_acquisto||0}</td>
+      <td><span class="stato-${r.stato==='magazzino'?'mag':r.stato==='venduto'?'vend':'rip'}">${r.stato==='magazzino'?'📦 Stock':r.stato==='venduto'?'✅ Venduto':'🔧 Rip.'}</span></td>
+    </tr>
+  `).join('');
+}
+
+// ── SALVA ACQUISTO ────────────────────────────────────────────────────
+async function salvaAcquisto(){
+  const modello = document.getElementById('db-acq-modello').value.trim();
+  const imei    = document.getElementById('db-acq-imei').value.trim();
+  const prezzo  = document.getElementById('db-acq-prezzo').value;
+  const venditore = document.getElementById('db-acq-venditore').value.trim();
+  const doc     = document.getElementById('db-acq-doc').value.trim();
+  if(!modello){ toast('Inserisci il modello','err'); return; }
+  if(!imei || imei.length<15){ toast('IMEI non valido (15 cifre)','err'); return; }
+  if(!prezzo){ toast('Inserisci il prezzo','err'); return; }
+  if(!venditore){ toast('Inserisci il nome del venditore','err'); return; }
+
+  document.getElementById('db-acq-load').classList.add('show');
+  document.getElementById('ris-db-acq').classList.remove('show');
+
+  const payload = {
+    tipo: 'acquisto',
+    modello,
+    imei,
+    storage:   document.getElementById('db-acq-storage').value,
+    colore:    document.getElementById('db-acq-colore').value.trim(),
+    prezzo_acquisto: parseFloat(prezzo),
+    venditore,
+    doc_venditore: doc,
+    data:      document.getElementById('db-acq-data').value || new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}),
+    note:      document.getElementById('db-acq-note').value.trim()
+  };
+
+  try {
+    const resp = await fetch(SHEETS_WRITE_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const result = await resp.json();
+    document.getElementById('db-acq-load').classList.remove('show');
+    if(result.status === 'ok'){
+      document.getElementById('ris-db-acq-id').textContent  = result.id;
+      document.getElementById('ris-db-acq-mod').textContent = modello;
+      document.getElementById('ris-db-acq-imei').textContent = imei;
+      document.getElementById('ris-db-acq-pz').textContent = '-€'+prezzo;
+      document.getElementById('ris-db-acq').classList.add('show');
+      toast('Acquisto salvato ✓','ok');
+      // Aggiorna anche magazzino app
+      aggiornaDashboard();
+    } else if(result.status === 'duplicate'){
+      toast('IMEI già presente nel database!','err');
+    } else {
+      toast('Errore: '+result.msg,'err');
+    }
+  } catch(e){
+    document.getElementById('db-acq-load').classList.remove('show');
+    toast('Errore connessione — configura SHEETS_WRITE_URL','err');
+  }
+}
+
+function resetAcquistoDb(){
+  ['db-acq-modello','db-acq-imei','db-acq-prezzo','db-acq-venditore',
+   'db-acq-doc','db-acq-note','db-acq-colore'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('db-acq-storage').value='';
+  document.getElementById('ris-db-acq').classList.remove('show');
+}
+
+// ── CERCA IMEI PER VENDITA ─────────────────────────────────────────────
+async function cercaImeiDb(){
+  const imei = document.getElementById('db-vend-imei').value.trim();
+  if(!imei){ toast('Inserisci IMEI','err'); return; }
+  // Prima cerca in cache locale
+  let row = DB_CACHE.find(r=>r.imei===imei && r.stato==='magazzino');
+  if(!row){
+    // Se cache vuota o non trovato, ricarica
+    await loadDatabase();
+    row = DB_CACHE.find(r=>r.imei===imei && r.stato==='magazzino');
+  }
+  if(row){
+    document.getElementById('db-vend-found-mod').textContent = row.modello + (row.storage?' '+row.storage:'');
+    document.getElementById('db-vend-found-pz').textContent  = '€'+row.prezzo_acquisto;
+    document.getElementById('db-vend-found').style.display = 'block';
+    DB_PREZZO_ACQUISTO_CORRENTE = parseFloat(row.prezzo_acquisto)||0;
+    aggiornaMargineLive();
+    toast('Dispositivo trovato ✓','ok');
+  } else {
+    document.getElementById('db-vend-found').style.display='none';
+    DB_PREZZO_ACQUISTO_CORRENTE=0;
+    toast('IMEI non trovato in magazzino','err');
+  }
+}
+
+function aggiornaMargineLive(){
+  const pz = parseFloat(document.getElementById('db-vend-prezzo').value)||0;
+  if(pz>0 && DB_PREZZO_ACQUISTO_CORRENTE>0){
+    const marg = pz - DB_PREZZO_ACQUISTO_CORRENTE;
+    const el = document.getElementById('db-margine-val');
+    el.textContent = (marg>=0?'+':'')+marg.toFixed(0)+'€';
+    el.style.color = marg>=0?'var(--green)':'var(--red)';
+    document.getElementById('db-margine-live').style.display='block';
+  }
+}
+
+// ── SALVA VENDITA ─────────────────────────────────────────────────────
+async function salvaVendita(){
+  const imei    = document.getElementById('db-vend-imei').value.trim();
+  const cliente = document.getElementById('db-vend-cliente').value.trim();
+  const tel     = document.getElementById('db-vend-tel').value.trim();
+  const prezzo  = document.getElementById('db-vend-prezzo').value;
+  if(!imei){ toast('Inserisci IMEI','err'); return; }
+  if(!cliente){ toast('Inserisci nome cliente','err'); return; }
+  if(!prezzo){ toast('Inserisci prezzo vendita','err'); return; }
+
+  document.getElementById('db-vend-load').classList.add('show');
+  document.getElementById('ris-db-vend').classList.remove('show');
+
+  const row = DB_CACHE.find(r=>r.imei===imei);
+  const payload = {
+    tipo: 'vendita',
+    imei,
+    cliente,
+    tel_cliente: tel,
+    prezzo_vendita: parseFloat(prezzo),
+    data_vendita: document.getElementById('db-vend-data').value || new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})
+  };
+
+  try {
+    const resp = await fetch(SHEETS_WRITE_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const result = await resp.json();
+    document.getElementById('db-vend-load').classList.remove('show');
+    if(result.status === 'ok'){
+      const marg = result.margine||0;
+      document.getElementById('ris-db-vend-margine').textContent = (marg>=0?'+':'')+marg.toFixed(0)+'€';
+      document.getElementById('ris-db-vend-margine').style.color = marg>=0?'var(--green)':'var(--red)';
+      document.getElementById('ris-db-vend-mod').textContent = row?row.modello:'—';
+      document.getElementById('ris-db-vend-cliente').textContent = cliente;
+      document.getElementById('ris-db-vend-pz').textContent = '+€'+prezzo;
+      document.getElementById('ris-db-vend-acq').textContent = '-€'+(result.prezzo_acquisto||0);
+      document.getElementById('ris-db-vend').classList.add('show');
+      toast('Vendita salvata ✓','ok');
+      aggiornaDashboard();
+      await loadDatabase();
+    } else {
+      toast('Errore: '+result.msg,'err');
+    }
+  } catch(e){
+    document.getElementById('db-vend-load').classList.remove('show');
+    toast('Errore connessione','err');
+  }
+}
+
+function resetVenditaDb(){
+  ['db-vend-imei','db-vend-cliente','db-vend-tel','db-vend-prezzo'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('db-vend-found').style.display='none';
+  document.getElementById('db-margine-live').style.display='none';
+  document.getElementById('ris-db-vend').classList.remove('show');
+  DB_PREZZO_ACQUISTO_CORRENTE=0;
+}
+
+// ── CERCA FULL TEXT ────────────────────────────────────────────────────
+async function cercaDb(){
+  const q = document.getElementById('db-search-input').value.trim().toLowerCase();
+  if(!q){ toast('Inserisci cosa cercare','err'); return; }
+  if(!DB_CACHE.length) await loadDatabase();
+  const risultati = DB_CACHE.filter(r=>
+    (r.modello||'').toLowerCase().includes(q) ||
+    (r.imei||'').includes(q) ||
+    (r.cliente||'').toLowerCase().includes(q) ||
+    (r.venditore||'').toLowerCase().includes(q)
+  );
+  const el = document.getElementById('db-search-results');
+  if(!risultati.length){
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--g400)">Nessun risultato per "'+q+'"</div>';
+    return;
+  }
+  el.innerHTML = risultati.map(r=>`
+    <div class="card" style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <div>
+          <div style="font-size:14px;font-weight:700">${r.modello||'—'} ${r.storage||''}</div>
+          <div style="font-size:10px;color:var(--g400);font-family:monospace">${r.imei||'—'}</div>
+        </div>
+        <span class="stato-${r.stato==='magazzino'?'mag':r.stato==='venduto'?'vend':'rip'}">${r.stato}</span>
+      </div>
+      <div class="rrow"><span class="rrl">Acquistato da</span><span class="rrv">${r.venditore||'—'}</span></div>
+      <div class="rrow"><span class="rrl">Prezzo acquisto</span><span class="rrv neg">€${r.prezzo_acquisto||0}</span></div>
+      ${r.stato==='venduto'?`<div class="rrow"><span class="rrl">Venduto a</span><span class="rrv">${r.cliente||'—'}</span></div>
+      <div class="rrow"><span class="rrl">Prezzo vendita</span><span class="rrv pos">€${r.prezzo_vendita||0}</span></div>
+      <div class="rrow"><span class="rrl">Margine</span><span class="rrv ${parseFloat(r.margine)>=0?'pos':'neg'}">€${r.margine||0}</span></div>`:''}
+    </div>
+  `).join('');
+}
+
+// ══ REPORT GIORNALIERO ════════════════════════════════════════════════
+
+async function loadReport(){
+  const dataSel = document.getElementById('report-data-sel').value;
+  const oggi = new Date();
+  const dataTarget = dataSel
+    ? new Date(dataSel).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})
+    : oggi.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+  document.getElementById('report-data-lbl').textContent = dataSel
+    ? new Date(dataSel).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})
+    : 'Oggi — '+dataTarget;
+
+  document.getElementById('report-load').classList.add('show');
+  document.getElementById('rep-margine-banner').style.display='none';
+  document.getElementById('rep-acq-section').style.display='none';
+  document.getElementById('rep-vend-section').style.display='none';
+  document.getElementById('rep-empty').style.display='none';
+
+  // Usa cache o ricarica
+  if(!DB_CACHE.length) await loadDatabase();
+
+  document.getElementById('report-load').classList.remove('show');
+
+  const acquisti = DB_CACHE.filter(r=>{
+    const d = (r.data||'').trim();
+    return d === dataTarget;
+  });
+  const vendite = DB_CACHE.filter(r=>{
+    const d = (r.data_vendita||'').trim();
+    return d === dataTarget && r.stato==='venduto';
+  });
+  const magazzino = DB_CACHE.filter(r=>r.stato==='magazzino');
+
+  // Calcola totali
+  const totAcq  = acquisti.reduce((s,r)=>s+(parseFloat(r.prezzo_acquisto)||0),0);
+  const totVend  = vendite.reduce((s,r)=>s+(parseFloat(r.prezzo_vendita)||0),0);
+  const totMarg  = vendite.reduce((s,r)=>s+(parseFloat(r.margine)||0),0);
+
+  document.getElementById('rep-n-acq').textContent   = acquisti.length;
+  document.getElementById('rep-n-vend').textContent  = vendite.length;
+  document.getElementById('rep-tot-acq').textContent = acquisti.length ? '-€'+totAcq.toFixed(0) : '€0';
+  document.getElementById('rep-tot-vend').textContent= vendite.length  ? '+€'+totVend.toFixed(0) : '€0';
+  document.getElementById('rep-mag-count').textContent = magazzino.length;
+
+  // Margine banner
+  if(vendite.length){
+    document.getElementById('rep-margine-val').textContent = (totMarg>=0?'+':'')+totMarg.toFixed(0)+'€';
+    document.getElementById('rep-margine-val').style.color = totMarg>=0?'var(--green)':'var(--red)';
+    document.getElementById('rep-margine-sub').textContent = vendite.length+' vendite · costo medio '+(totAcq/Math.max(acquisti.length,1)).toFixed(0)+'€';
+    document.getElementById('rep-margine-banner').style.display='flex';
+  }
+
+  // Lista acquisti del giorno
+  if(acquisti.length){
+    document.getElementById('rep-acq-list').innerHTML = acquisti.map(r=>`
+      <div class="rrow">
+        <span class="rrl"><b>${r.modello||'—'}</b>${r.storage?' '+r.storage:''}<br>
+          <span style="font-family:monospace;font-size:9px;color:var(--g400)">${r.imei||''}</span><br>
+          <span style="font-size:10px">da ${r.venditore||'—'}</span>
+        </span>
+        <span class="rrv neg" style="font-size:15px">-€${r.prezzo_acquisto||0}</span>
+      </div>
+    `).join('');
+    document.getElementById('rep-acq-section').style.display='block';
+  }
+
+  // Lista vendite del giorno
+  if(vendite.length){
+    document.getElementById('rep-vend-list').innerHTML = vendite.map(r=>`
+      <div class="rrow">
+        <span class="rrl"><b>${r.modello||'—'}</b>${r.storage?' '+r.storage:''}<br>
+          <span style="font-size:10px">a ${r.cliente||'—'}</span>
+        </span>
+        <div style="text-align:right">
+          <div class="rrv pos">+€${r.prezzo_vendita||0}</div>
+          <div style="font-size:10px;color:${parseFloat(r.margine)>=0?'var(--green)':'var(--red)'};font-weight:600">
+            marg ${parseFloat(r.margine)>=0?'+':''}€${r.margine||0}
+          </div>
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('rep-vend-section').style.display='block';
+  }
+
+  // Magazzino corrente
+  if(magazzino.length){
+    document.getElementById('rep-mag-list').innerHTML = magazzino.map(r=>`
+      <div style="padding:6px 0;border-bottom:1px solid var(--g100);display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:12px;font-weight:600">${r.modello||'—'} ${r.storage||''}</div>
+          <div style="font-size:10px;color:var(--g400)">da ${r.data||'—'} · ${r.venditore||''}</div>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:var(--amber)">€${r.prezzo_acquisto||0}</div>
+      </div>
+    `).join('');
+  } else {
+    document.getElementById('rep-mag-list').innerHTML = '<div style="text-align:center;padding:16px;color:var(--g400);font-size:12px">Magazzino vuoto</div>';
+  }
+
+  if(!acquisti.length && !vendite.length){
+    document.getElementById('rep-empty').style.display='block';
+  }
+}
+
+// Inizializza date picker al valore odierno quando si apre il report
+function initReport(){
+  const today = new Date().toISOString().split('T')[0];
+  const el = document.getElementById('report-data-sel');
+  if(el && !el.value) el.value = today;
+  loadReport();
+}
+</script>
+
 
 </body>
 </html>
