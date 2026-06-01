@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SOS App v4.1 - Vendi Smartphone nativo - 01/06/2026 -->
+<!-- SOS App v4.2 - Vendi Smartphone Formaloo 833e6b - 01/06/2026 -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -1340,6 +1340,7 @@ function calcolaAccessorio(tipo){
 const IFRAME_URLS = {
   'iscrizione': 'https://cruciani.formaloo.me/jdgph3',
   'vs2': 'https://cruciani.formaloo.me/9mvni5',
+  'vendi': 'https://cruciani.formaloo.me/833e6b',
   'protezione': 'https://cruciani.formaloo.me/2873gg',
 };
 function goTo(s){
@@ -4663,152 +4664,13 @@ function resetChat(){
 </div>
 
 <!-- ══ VENDI SMARTPHONE ══ -->
-<div class="screen" id="screen-vendi">
-  <div class="bhdr">
+<div class="screen iframe-screen" id="screen-vendi">
+  <div class="formaloo-header">
     <button class="bbtn" onclick="goTo('home')">←</button>
-    <div><div class="btitle">Vendi Smartphone</div><div class="bsub">Registra vendita + garanzia</div></div>
+    <div><div class="btitle">Vendi Smartphone</div><div class="bsub">Registra vendita dispositivo</div></div>
   </div>
-
-  <!-- CERCA IMEI DA MAGAZZINO -->
-  <div class="card">
-    <div style="font-size:11px;font-weight:700;color:var(--g600);margin-bottom:10px">🔍 CERCA DA MAGAZZINO</div>
-    <div style="display:flex;gap:8px">
-      <input type="text" class="fi" id="vs-imei-search" placeholder="IMEI dispositivo..."
-        style="flex:1;margin:0;font-family:monospace"
-        oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)">
-      <button onclick="cercaImeiVendita()" style="background:#111;color:white;border:none;border-radius:10px;padding:14px 16px;font-size:15px;cursor:pointer;flex-shrink:0">🔍</button>
-    </div>
-    <div id="vs-found" style="display:none;margin-top:10px;background:var(--gl);border:1px solid #bbf7d0;border-radius:var(--rsm);padding:10px">
-      <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:6px">✓ TROVATO IN MAGAZZINO</div>
-      <div class="rrow"><span class="rrl">Modello</span><span class="rrv" id="vs-found-mod">—</span></div>
-      <div class="rrow"><span class="rrl">Storage</span><span class="rrv" id="vs-found-storage">—</span></div>
-      <div class="rrow"><span class="rrl">Colore</span><span class="rrv" id="vs-found-colore">—</span></div>
-      <div class="rrow"><span class="rrl">Costo acquisto</span><span class="rrv neg" id="vs-found-costo">—</span></div>
-    </div>
-    <div id="vs-not-found" style="display:none;margin-top:8px">
-      <div class="alert alert-w">⚠️ IMEI non in magazzino — compila i dati manualmente sotto</div>
-    </div>
-  </div>
-
-  <!-- DATI DISPOSITIVO -->
-  <div class="card">
-    <div style="font-size:11px;font-weight:700;color:var(--g600);margin-bottom:10px">📱 DISPOSITIVO</div>
-    <div class="fg">
-      <label class="fl">Modello</label>
-      <input type="text" class="fi" id="vs-modello" placeholder="Es. iPhone 13 128GB Midnight" autocomplete="off">
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div class="fg">
-        <label class="fl">IMEI</label>
-        <input type="text" class="fi" id="vs-imei" placeholder="354123456789012"
-          style="font-family:monospace;letter-spacing:1px"
-          oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)">
-      </div>
-      <div class="fg">
-        <label class="fl">Stato batteria %</label>
-        <input type="number" class="fi" id="vs-batteria" placeholder="Es. 89" min="0" max="100">
-      </div>
-    </div>
-    <div class="fg">
-      <label class="fl">Condizione</label>
-      <div class="trow">
-        <button class="tbtn active" id="vs-cond-A" onclick="setCondizioneVendita('A')">⭐ Grado A</button>
-        <button class="tbtn" id="vs-cond-B" onclick="setCondizioneVendita('B')">👍 Grado B</button>
-        <button class="tbtn" id="vs-cond-C" onclick="setCondizioneVendita('C')">✅ Nuovo</button>
-      </div>
-    </div>
-    <div class="fg">
-      <label class="fl">Note (accessori inclusi, difetti...)</label>
-      <input type="text" class="fi" id="vs-note" placeholder="Es. Con scatola originale, caricatore">
-    </div>
-  </div>
-
-  <!-- DATI CLIENTE -->
-  <div class="card">
-    <div style="font-size:11px;font-weight:700;color:var(--g600);margin-bottom:10px">👤 CLIENTE</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div class="fg"><label class="fl">Nome</label>
-        <input type="text" class="fi" id="vs-nome" placeholder="Nome" autocomplete="off">
-      </div>
-      <div class="fg"><label class="fl">Cognome</label>
-        <input type="text" class="fi" id="vs-cognome" placeholder="Cognome" autocomplete="off">
-      </div>
-    </div>
-    <div class="fg"><label class="fl">Telefono</label>
-      <input type="tel" class="fi" id="vs-telefono" placeholder="3401234567" autocomplete="off">
-    </div>
-  </div>
-
-  <!-- PREZZO E DATA -->
-  <div class="card">
-    <div style="font-size:11px;font-weight:700;color:var(--g600);margin-bottom:10px">💰 VENDITA</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div class="fg"><label class="fl">Prezzo vendita (€)</label>
-        <input type="number" class="fi" id="vs-prezzo" placeholder="Es. 399" min="0" step="5"
-          oninput="aggiornaMargineVendita()">
-      </div>
-      <div class="fg"><label class="fl">Data vendita</label>
-        <input type="date" class="fi" id="vs-data">
-      </div>
-    </div>
-    <!-- Margine live -->
-    <div id="vs-margine-wrap" style="display:none;background:var(--g50);border-radius:var(--rsm);padding:10px;text-align:center;margin-top:4px">
-      <div style="font-size:10px;color:var(--g400);text-transform:uppercase;margin-bottom:2px">Margine</div>
-      <div id="vs-margine-val" style="font-size:22px;font-weight:700">—</div>
-    </div>
-    <!-- Garanzia -->
-    <div class="fg" style="margin-top:8px">
-      <label class="fl">Garanzia</label>
-      <div class="trow">
-        <button class="tbtn active" id="vs-gar-6" onclick="setGaranziaVendita(6)">6 mesi</button>
-        <button class="tbtn" id="vs-gar-12" onclick="setGaranziaVendita(12)">12 mesi</button>
-        <button class="tbtn" id="vs-gar-0" onclick="setGaranziaVendita(0)">Nessuna</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- DIAGNOSTICA RAPIDA -->
-  <div class="card">
-    <div style="font-size:11px;font-weight:700;color:var(--g600);margin-bottom:10px">🔬 DIAGNOSTICA (tocca per cambiare stato)</div>
-    <div class="diag-grid">
-      <div class="diag-item ok" data-name="Touch" onclick="togDiag(this)">Touch</div>
-      <div class="diag-item ok" data-name="Display" onclick="togDiag(this)">Display</div>
-      <div class="diag-item ok" data-name="Batteria" onclick="togDiag(this)">Batteria</div>
-      <div class="diag-item ok" data-name="Face ID" onclick="togDiag(this)">Face ID</div>
-      <div class="diag-item ok" data-name="Fotocamera" onclick="togDiag(this)">Fotocam.</div>
-      <div class="diag-item ok" data-name="WiFi" onclick="togDiag(this)">WiFi</div>
-      <div class="diag-item ok" data-name="Altoparlante" onclick="togDiag(this)">Audio</div>
-      <div class="diag-item ok" data-name="SIM" onclick="togDiag(this)">SIM</div>
-      <div class="diag-item ok" data-name="Ricarica" onclick="togDiag(this)">Ricarica</div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:6px;font-size:10px;color:var(--g400)">
-      <span>🟢 Verde = OK</span><span>🔴 Rosso = Difetto</span>
-    </div>
-  </div>
-
-  <div class="loading" id="vs-load"><span class="spinner"></span>Registrazione in corso...</div>
-  <button class="btn btn-green" onclick="registraVenditaSmartphone()" style="margin-bottom:8px">
-    🧾 Registra vendita
-  </button>
-
-  <!-- RISULTATO -->
-  <div class="result" id="ris-vendi">
-    <div class="rtop success">
-      <div>
-        <div class="rtop-lbl">Vendita registrata ✓</div>
-        <div class="ramount" id="ris-vendi-prezzo">—</div>
-      </div>
-      <div class="ricon">🧾</div>
-    </div>
-    <div class="rbody">
-      <div class="rrow"><span class="rrl">Cliente</span><span class="rrv pos" id="ris-vendi-cliente">—</span></div>
-      <div class="rrow"><span class="rrl">Modello</span><span class="rrv" id="ris-vendi-modello">—</span></div>
-      <div class="rrow"><span class="rrl">IMEI</span><span class="rrv" id="ris-vendi-imei" style="font-family:monospace;font-size:11px">—</span></div>
-      <div class="rrow"><span class="rrl">Garanzia</span><span class="rrv" id="ris-vendi-garanzia">—</span></div>
-      <div class="rrow"><span class="rrl">Margine</span><span class="rrv pos" id="ris-vendi-margine">—</span></div>
-      <div class="rrow"><span class="rrl">WhatsApp</span><span class="rrv pos">✓ Inviato</span></div>
-      <button class="btn btn-outline" style="margin-top:10px" onclick="resetVendiSmartphone()">Nuova vendita</button>
-    </div>
+  <div class="formaloo-wrap">
+    <iframe onload="javascript:parent.scrollTo(0,0);" height="750" allowTransparency="true" frameborder="0" scrolling="yes" style="width:100%;border:none;flex:1;min-height:calc(100vh - 120px)" src="https://cruciani.formaloo.me/833e6b" id="frame-vendi"></iframe>
   </div>
 </div>
 
