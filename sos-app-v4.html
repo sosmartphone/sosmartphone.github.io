@@ -607,7 +607,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <div class="cbright">3,86 €/h</div></div>
   <div class="tabs">
     <button class="tab active" onclick="setTab('assistenza')">🔧 Assistenza</button>
-    <button class="tab" onclick="setTab('acquisto')">📱 Acquisto</button>
 
   </div>
 
@@ -678,117 +677,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     </div>
   </div>
 
-  <!-- TAB ACQUISTO -->
-  <div id="tab-acquisto" style="display:none">
-
-    <!-- SEZIONE IPHONE -->
-    <div class="card">
-      <div style="font-size:11px;font-weight:600;color:var(--g600);margin-bottom:10px">📱 iPHONE / APPLE</div>
-      <div class="fg">
-        <label class="fl">Categoria</label>
-        <select class="fi" id="acq-categoria" onchange="onCategoriaAcquisto()">
-          <option value="">Seleziona categoria...</option>
-          <option>iPhone</option>
-          <option>iPad Mini / Air</option>
-          <option>iPad Pro</option>
-          <option>Apple Watch</option>
-          <option>Portatili</option>
-          <option>Fissi</option>
-        </select>
-      </div>
-      <div class="fg">
-        <label class="fl">Modello</label>
-        <select class="fi" id="acq-modello" onchange="onModelloAcquisto()">
-          <option value="">Seleziona categoria prima</option>
-        </select>
-      </div>
-      <div class="fg" id="acq-connettivita-wrap" style="display:none">
-        <label class="fl">Connettività</label>
-        <select class="fi" id="acq-connettivita" onchange="aggiornaPrezziAcquisto()">
-          <option value="">Tutte</option>
-        </select>
-      </div>
-      <div class="fg">
-        <label class="fl">Capacità</label>
-        <select class="fi" id="acq-capacita" onchange="aggiornaPrezziAcquisto()">
-          <option value="">Seleziona modello prima</option>
-        </select>
-      </div>
-      <div class="fg">
-        <label class="fl">Grado dispositivo</label>
-        <div class="trow">
-          <button class="tbtn active" id="acq-grado-A" onclick="setGradoAcquisto('A')">Grado A</button>
-          <button class="tbtn" id="acq-grado-B" onclick="setGradoAcquisto('B')">Grado B</button>
-        </div>
-        <div class="hint">A = ottime condizioni · B = piccoli difetti estetici</div>
-      </div>
-
-      <div id="acq-prezzi-box" style="display:none;background:var(--g50);border-radius:var(--rsm);padding:12px;margin-bottom:12px">
-        <div style="font-size:10px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Prezzi dal listino</div>
-        <div class="rrow"><span class="rrl">Ritiro Apple</span><span class="rrv" id="acq-ritiro-apple">—</span></div>
-        <div class="rrow"><span class="rrl">Ritiro SOS (offerta cliente)</span><span class="rrv pos" style="font-size:18px;font-weight:700" id="acq-ritiro-sos">—</span></div>
-        <button class="btn btn-outline" style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px" onclick="apiBankMyCell()">
-          🌐 <span>Verifica su BankMyCell</span>
-        </button>
-      </div>
-
-      <div class="fg">
-        <label class="fl">Difetti aggiuntivi</label>
-        <div class="cgroup" id="difetti-list">
-          <div class="citem-row" id="difetto-1">
-            <div class="citem-check" onclick="togDifetto(1)"><div class="cbox" id="cbox-1"></div><span class="clabel">Schermo rotto</span></div>
-            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-1" value="50" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
-          </div>
-          <div class="citem-row" id="difetto-2">
-            <div class="citem-check" onclick="togDifetto(2)"><div class="cbox" id="cbox-2"></div><span class="clabel">Batteria da sostituire</span></div>
-            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-2" value="10" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
-          </div>
-          <div class="citem-row" id="difetto-3">
-            <div class="citem-check" onclick="togDifetto(3)"><div class="cbox" id="cbox-3"></div><span class="clabel">Scocca danneggiata</span></div>
-            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-3" value="30" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
-          </div>
-          <div class="citem-row" id="difetto-4">
-            <div class="citem-check" onclick="togDifetto(4)"><div class="cbox" id="cbox-4"></div><span class="clabel">Non si accende</span></div>
-            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-4" value="80" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
-          </div>
-          <div class="citem-row" id="difetto-5">
-            <div class="citem-check" onclick="togDifetto(5)"><div class="cbox" id="cbox-5"></div><span class="clabel">Face ID non funziona</span></div>
-            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-5" value="35" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
-          </div>
-          <div class="citem-row" id="difetto-6">
-            <div class="citem-check" onclick="togDifetto(6)"><div class="cbox" id="cbox-6"></div><span class="clabel">Fotocamera rotta</span></div>
-            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-6" value="30" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
-          </div>
-        </div>
-      </div>
-      <button class="btn btn-black" onclick="calcolaAcquisto()">Calcola offerta</button>
-    </div>
-
-    <!-- SEZIONE ANDROID / ALTRI -->
-    <div class="card">
-      <div style="font-size:11px;font-weight:600;color:var(--g600);margin-bottom:10px">🤖 ANDROID / ALTRI</div>
-      <div class="fg">
-        <label class="fl">Modello dispositivo</label>
-        <input type="text" class="fi" id="acq-android-modello" placeholder="Es. Samsung Galaxy S23, Xiaomi 13..." autocomplete="off">
-      </div>
-      <button class="btn btn-outline" style="display:flex;align-items:center;justify-content:center;gap:6px" onclick="apiBankMyCellAndroid()">
-        🌐 <span>Valuta su TrovaUsati</span>
-      </button>
-    </div>
-    <div class="result" id="ris-acq">
-      <div class="rtop dark"><div><div class="rtop-lbl">Offerta al cliente</div><div class="ramount" id="ris-acq-off">—</div></div><div class="ricon">📱</div></div>
-      <div class="rbody">
-        <div class="rrow"><span class="rrl">Prezzo listino SOS</span><span class="rrv" id="ris-acq-mer">—</span></div>
-        <div class="rrow"><span class="rrl">Detrazione difetti</span><span class="rrv neg" id="ris-acq-det">—</span></div>
-        <div class="rgrid" style="margin-top:10px">
-          <div class="rcell"><div class="rcell-lbl">Minima</div><div class="rcell-val" id="ris-acq-min" style="color:var(--red)">—</div></div>
-          <div class="rcell feat"><div class="rcell-lbl">Consigliata</div><div class="rcell-val" id="ris-acq-con">—</div></div>
-          <div class="rcell"><div class="rcell-lbl">Massima</div><div class="rcell-val" id="ris-acq-max">—</div></div>
-        </div>
-        <button class="btn btn-outline" style="margin-top:10px" onclick="resetAcquisto()">Nuova valutazione</button>
-      </div>
-    </div>
-  </div>
 
   <!-- TAB VENDITA -->
 
@@ -1355,8 +1243,8 @@ async function wh(url,data){try{await fetch(url,{method:'POST',headers:{'Content
 
 // PREVENTIVI TABS
 function setTab(tab){
-  ['assistenza','acquisto'].forEach(t=>document.getElementById('tab-'+t).style.display=t===tab?'block':'none');
-  document.querySelectorAll('#screen-prev .tabs .tab').forEach((el,i)=>el.classList.toggle('active',['assistenza','acquisto'][i]===tab));
+  ['assistenza'].forEach(t=>document.getElementById('tab-'+t).style.display=t===tab?'block':'none');
+  document.querySelectorAll('#screen-prev .tabs .tab').forEach((el,i)=>el.classList.toggle('active',['assistenza'][i]===tab));
 }
 
 // RMA TABS
