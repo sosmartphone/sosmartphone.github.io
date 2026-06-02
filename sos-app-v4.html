@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SOS App v4.2 - Vendi Smartphone Formaloo 833e6b - 01/06/2026 -->
+<!-- SOS App v4.0 - Build pulita dal file originale - 02/06/2026 -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,9 +7,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="SOS">
 <meta name="theme-color" content="#ffffff">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <title>SOS Smartphone v4</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -44,10 +41,10 @@ body{background:var(--off);color:var(--black);font-family:'Inter',-apple-system,
 .nb .nl{font-size:8px;font-weight:600;letter-spacing:0.3px;text-transform:uppercase}
 
 /* SCREENS */
-.screen{display:none !important;padding:14px}
-.screen.active{display:block !important;animation:fu 0.2s ease}
+.screen{display:none;padding:14px}
+.screen.active{display:block;animation:fu 0.2s ease}
 .screen.iframe-screen{padding:0}
-.screen.iframe-screen.active{display:flex !important;flex-direction:column}
+.screen.iframe-screen.active{display:flex;flex-direction:column}
 @keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 
 /* SECTION LABEL */
@@ -331,28 +328,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.ok{background:var(--green)}
 .toast.err{background:var(--red)}
-
-/* DATABASE SMARTPHONE */
-.db-stat{background:var(--w);border-radius:var(--r);padding:14px;box-shadow:var(--sh);text-align:center}
-.db-stat-v{font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1}
-.db-stat-l{font-size:10px;color:var(--g400);text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
-.db-table{width:100%;border-collapse:collapse;font-size:12px}
-.db-table th{background:var(--black);color:white;padding:8px 6px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700}
-.db-table td{padding:8px 6px;border-bottom:1px solid var(--g100);vertical-align:top}
-.db-table tr:last-child td{border-bottom:none}
-.db-table tr:hover td{background:var(--g50)}
-.stato-mag{background:var(--al);color:var(--amber);font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
-.stato-vend{background:var(--gl);color:var(--green);font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
-.stato-rip{background:var(--bl);color:var(--blue);font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
-.report-section{background:var(--w);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:var(--sh)}
-.report-title{font-size:12px;font-weight:700;color:var(--g600);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
-.margine-pos{color:var(--green);font-weight:700}
-.margine-neg{color:var(--red);font-weight:700}
-
 </style>
 </head>
 <body>
-
 <div class="app">
 
 <!-- HEADER -->
@@ -366,7 +344,32 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
 <!-- ══ HOME ══ -->
 <div class="screen active" id="screen-home">
-<div class="slbl">Referral</div>
+  <div class="hero">
+    <div class="hero-lbl">App Negozio · Foligno</div>
+    <div class="hero-title">Buongiorno,<br>cosa facciamo?</div>
+    <div class="hero-sub">Referral · Preventivi · RMA · Accessori</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="slbl">Dashboard</div>
+  <div class="dash-grid">
+    <div class="dash-card" onclick="goTo('iscrizione')">
+      <div class="dash-icon">📊</div>
+      <div class="dash-val" id="dash-referral">—</div>
+      <div class="dash-lbl">Iscritti Fedeltà</div>
+    </div>
+    <div class="dash-card" onclick="goTo('rma');setRmaTab('pratiche')">
+      <div class="dash-icon">🔧</div>
+      <div class="dash-val" id="dash-rma">—</div>
+      <div class="dash-lbl">RMA Aperte</div>
+    </div>
+    <div class="dash-card" onclick="goTo('storico')">
+      <div class="dash-icon">📱</div>
+      <div class="dash-val" id="dash-vendite">—</div>
+      <div class="dash-lbl">Vendite oggi</div>
+    </div>
+  </div>
+  <div class="slbl">Referral</div>
   <div class="qgrid">
     <div class="qcard" onclick="goTo('iscrizione')"><div class="qcard-icon">✍️</div><div class="qcard-label">Iscrivi al Programma Fedeltà</div><div class="qcard-desc">Genera codice referral</div></div>
     <div class="qcard" onclick="goTo('check')"><div class="qcard-icon">🔍</div><div class="qcard-label">Check Programma Fedeltà</div><div class="qcard-desc">Verifica codice amico in negozio</div></div>
@@ -376,10 +379,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   <div class="slbl">Preventivi</div>
   <div class="qgrid">
     <div class="qcard" onclick="goTo('prev');setTab('assistenza')"><div class="qcard-icon">🔧</div><div class="qcard-label">Assistenza</div><div class="qcard-desc">Prezzo + margine</div></div>
+    <div class="qcard" onclick="goTo('prev');setTab('acquisto')"><div class="qcard-icon">📱</div><div class="qcard-label">Valuta iPhone</div><div class="qcard-desc">Offerta di acquisto</div></div>
   </div>
   <div class="slbl">Vendita</div>
   <div class="qgrid">
     <div class="qcard" onclick="goTo('vendi')"><div class="qcard-icon">🧾</div><div class="qcard-label">Vendi Smartphone</div><div class="qcard-desc">Registra vendita dispositivo</div></div>
+    <div class="qcard" onclick="goTo('vs2')"><div class="qcard-icon">🧾</div><div class="qcard-label">Vendi Smartphone</div><div class="qcard-desc">Registra vendita dispositivo</div></div>
     <div class="qcard" onclick="goTo('contratto')"><div class="qcard-icon">📄</div><div class="qcard-label">Contratto acquisto</div><div class="qcard-desc">Genera PDF contratto</div></div>
     <div class="qcard" onclick="goTo('protezione')"><div class="qcard-icon">🛡️</div><div class="qcard-label">Piano Protezione</div><div class="qcard-desc">Attiva piano danni accidentali</div></div>
     <div class="qcard" onclick="goTo('splitty')"><div class="qcard-icon">💳</div><div class="qcard-label">Splitty Pay</div><div class="qcard-desc">Calcola rate pagamento</div></div>
@@ -387,11 +392,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="qcard" onclick="goTo('registro');loadRegistroOggi()"><div class="qcard-icon">📦</div><div class="qcard-label">Registro Usati</div><div class="qcard-desc">Acquisti e magazzino</div></div>
   </div>
 
-  <div class="slbl">Database &amp; Report</div>
+  <div class="slbl">Registro Usati</div>
   <div class="qgrid">
-    <div class="qcard" onclick="goTo('database');setDbTab('magazzino')"><div class="qcard-icon">🗄️</div><div class="qcard-label">Database Smartphone</div><div class="qcard-desc">Acquisti · Vendite · Stock</div></div>
-    <div class="qcard" onclick="goTo('report');initReport()"><div class="qcard-icon">📊</div><div class="qcard-label">Report Giornaliero</div><div class="qcard-desc">Margini · Movimenti · Magazzino</div></div>
+    <div class="qcard" onclick="generaReportGiornaliero()"><div class="qcard-icon">📋</div><div class="qcard-label">Report giornaliero</div><div class="qcard-desc">PDF acquisti e vendite oggi</div></div>
+    <div class="qcard" onclick="generaStampaRegistro()"><div class="qcard-icon">🖨️</div><div class="qcard-label">Stampa registro</div><div class="qcard-desc">PDF da sovrapporre al foglio</div></div>
   </div>
+
   <div class="slbl">Supporto</div>
   <div class="qgrid">
     <div class="qcard" onclick="goTo('assistente')"><div class="qcard-icon">🤖</div><div class="qcard-label">Assistente Tecnico</div><div class="qcard-desc">Problemi smartphone + soluzioni AI</div></div>
@@ -547,6 +553,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   </div>
 </div>
 
+
 <!-- ══ SALDO ══ -->
 <div class="screen" id="screen-saldo">
   <div class="bhdr"><button class="bbtn" onclick="goTo('home')">←</button><div><div class="btitle">Saldo cliente</div><div class="bsub">Premi e livello</div></div></div>
@@ -581,10 +588,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
 <!-- ══ PREVENTIVI ══ -->
 <div class="screen" id="screen-prev">
-  <div class="bhdr"><button class="bbtn" onclick="goTo('home')">←</button><div><div class="btitle">Preventivi</div><div class="bsub">Assistenza · Preventivo</div></div></div>
-
+  <div class="bhdr"><button class="bbtn" onclick="goTo('home')">←</button><div><div class="btitle">Preventivi</div><div class="bsub">Assistenza · Acquisto · Vendita</div></div></div>
+  <div class="cbanner"><div class="cbleft">Costo fisso/ora<br>720h · 2 persone · 2.783€/mese</div><div class="cbright">3,86 €/h</div></div>
   <div class="tabs">
     <button class="tab active" onclick="setTab('assistenza')">🔧 Assistenza</button>
+    <button class="tab" onclick="setTab('acquisto')">📱 Acquisto</button>
 
   </div>
 
@@ -630,6 +638,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px">
         <div class="fg"><label class="fl">Prezzo listino (€)</label><input type="number" class="fi" id="ass-ric" placeholder="0" min="0" step="0.5"></div>
+        <div class="fg" id="ass-tempo-wrap"><label class="fl">Tempo (minuti)</label><input type="number" class="fi" id="ass-tempo" placeholder="30" min="5" step="5"></div>
       </div>
       <button class="btn btn-outline" style="margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:6px" onclick="window.open('https://www.foneday.com','_blank')">
         🔍 <span>Cerca su Foneday</span>
@@ -654,6 +663,117 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     </div>
   </div>
 
+  <!-- TAB ACQUISTO -->
+  <div id="tab-acquisto" style="display:none">
+
+    <!-- SEZIONE IPHONE -->
+    <div class="card">
+      <div style="font-size:11px;font-weight:600;color:var(--g600);margin-bottom:10px">📱 iPHONE / APPLE</div>
+      <div class="fg">
+        <label class="fl">Categoria</label>
+        <select class="fi" id="acq-categoria" onchange="onCategoriaAcquisto()">
+          <option value="">Seleziona categoria...</option>
+          <option>iPhone</option>
+          <option>iPad Mini / Air</option>
+          <option>iPad Pro</option>
+          <option>Apple Watch</option>
+          <option>Portatili</option>
+          <option>Fissi</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Modello</label>
+        <select class="fi" id="acq-modello" onchange="onModelloAcquisto()">
+          <option value="">Seleziona categoria prima</option>
+        </select>
+      </div>
+      <div class="fg" id="acq-connettivita-wrap" style="display:none">
+        <label class="fl">Connettività</label>
+        <select class="fi" id="acq-connettivita" onchange="aggiornaPrezziAcquisto()">
+          <option value="">Tutte</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Capacità</label>
+        <select class="fi" id="acq-capacita" onchange="aggiornaPrezziAcquisto()">
+          <option value="">Seleziona modello prima</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Grado dispositivo</label>
+        <div class="trow">
+          <button class="tbtn active" id="acq-grado-A" onclick="setGradoAcquisto('A')">Grado A</button>
+          <button class="tbtn" id="acq-grado-B" onclick="setGradoAcquisto('B')">Grado B</button>
+        </div>
+        <div class="hint">A = ottime condizioni · B = piccoli difetti estetici</div>
+      </div>
+
+      <div id="acq-prezzi-box" style="display:none;background:var(--g50);border-radius:var(--rsm);padding:12px;margin-bottom:12px">
+        <div style="font-size:10px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Prezzi dal listino</div>
+        <div class="rrow"><span class="rrl">Ritiro Apple</span><span class="rrv" id="acq-ritiro-apple">—</span></div>
+        <div class="rrow"><span class="rrl">Ritiro SOS (offerta cliente)</span><span class="rrv pos" style="font-size:18px;font-weight:700" id="acq-ritiro-sos">—</span></div>
+        <button class="btn btn-outline" style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px" onclick="apiBankMyCell()">
+          🌐 <span>Verifica su BankMyCell</span>
+        </button>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Difetti aggiuntivi</label>
+        <div class="cgroup" id="difetti-list">
+          <div class="citem-row" id="difetto-1">
+            <div class="citem-check" onclick="togDifetto(1)"><div class="cbox" id="cbox-1"></div><span class="clabel">Schermo rotto</span></div>
+            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-1" value="50" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
+          </div>
+          <div class="citem-row" id="difetto-2">
+            <div class="citem-check" onclick="togDifetto(2)"><div class="cbox" id="cbox-2"></div><span class="clabel">Batteria da sostituire</span></div>
+            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-2" value="10" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
+          </div>
+          <div class="citem-row" id="difetto-3">
+            <div class="citem-check" onclick="togDifetto(3)"><div class="cbox" id="cbox-3"></div><span class="clabel">Scocca danneggiata</span></div>
+            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-3" value="30" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
+          </div>
+          <div class="citem-row" id="difetto-4">
+            <div class="citem-check" onclick="togDifetto(4)"><div class="cbox" id="cbox-4"></div><span class="clabel">Non si accende</span></div>
+            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-4" value="80" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
+          </div>
+          <div class="citem-row" id="difetto-5">
+            <div class="citem-check" onclick="togDifetto(5)"><div class="cbox" id="cbox-5"></div><span class="clabel">Face ID non funziona</span></div>
+            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-5" value="35" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
+          </div>
+          <div class="citem-row" id="difetto-6">
+            <div class="citem-check" onclick="togDifetto(6)"><div class="cbox" id="cbox-6"></div><span class="clabel">Fotocamera rotta</span></div>
+            <div class="citem-pct"><span class="cmalus-lbl">−</span><input type="number" class="pct-input" id="pct-6" value="30" min="0" max="100" onclick="event.stopPropagation()"><span class="cmalus-lbl">%</span></div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-black" onclick="calcolaAcquisto()">Calcola offerta</button>
+    </div>
+
+    <!-- SEZIONE ANDROID / ALTRI -->
+    <div class="card">
+      <div style="font-size:11px;font-weight:600;color:var(--g600);margin-bottom:10px">🤖 ANDROID / ALTRI</div>
+      <div class="fg">
+        <label class="fl">Modello dispositivo</label>
+        <input type="text" class="fi" id="acq-android-modello" placeholder="Es. Samsung Galaxy S23, Xiaomi 13..." autocomplete="off">
+      </div>
+      <button class="btn btn-outline" style="display:flex;align-items:center;justify-content:center;gap:6px" onclick="apiBankMyCellAndroid()">
+        🌐 <span>Valuta su TrovaUsati</span>
+      </button>
+    </div>
+    <div class="result" id="ris-acq">
+      <div class="rtop dark"><div><div class="rtop-lbl">Offerta al cliente</div><div class="ramount" id="ris-acq-off">—</div></div><div class="ricon">📱</div></div>
+      <div class="rbody">
+        <div class="rrow"><span class="rrl">Prezzo listino SOS</span><span class="rrv" id="ris-acq-mer">—</span></div>
+        <div class="rrow"><span class="rrl">Detrazione difetti</span><span class="rrv neg" id="ris-acq-det">—</span></div>
+        <div class="rgrid" style="margin-top:10px">
+          <div class="rcell"><div class="rcell-lbl">Minima</div><div class="rcell-val" id="ris-acq-min" style="color:var(--red)">—</div></div>
+          <div class="rcell feat"><div class="rcell-lbl">Consigliata</div><div class="rcell-val" id="ris-acq-con">—</div></div>
+          <div class="rcell"><div class="rcell-lbl">Massima</div><div class="rcell-val" id="ris-acq-max">—</div></div>
+        </div>
+        <button class="btn btn-outline" style="margin-top:10px" onclick="resetAcquisto()">Nuova valutazione</button>
+      </div>
+    </div>
+  </div>
 
   <!-- TAB VENDITA -->
 
@@ -828,6 +948,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       </div>
     </div>
   </div>
+
 </div><!-- /screen-rma -->
 
 <!-- ══ ASSISTENZA SCREEN ══ -->
@@ -906,6 +1027,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   </div>
 </div>
 
+<!-- ══ VENDITA SMARTPHONE ══ -->
+<div class="screen iframe-screen" id="screen-vendita-sm">
+  <div class="formaloo-header">
+    <button class="bbtn" onclick="goTo('home')">←</button>
+    <div><div class="btitle">Vendi Smartphone</div><div class="bsub">Registra vendita dispositivo</div></div>
+  </div>
+  <div class="formaloo-wrap">
+    <iframe onload="javascript:parent.scrollTo(0,0);" height="750" allowTransparency="true" frameborder="0" scrolling="yes" style="width:100%;border:none" src="https://cruciani.formaloo.me/9mvni5" id="frame-vendita-sm"></iframe>
+  </div>
+</div>
+
+
 <!-- ══ DASHBOARD ══ -->
 <div class="screen" id="screen-dashboard">
   <div class="bhdr"><button class="bbtn" onclick="goTo('home')">←</button><div><div class="btitle">Dashboard</div><div class="bsub">Riepilogo attività negozio</div></div></div>
@@ -935,6 +1068,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   </div>
   <button class="btn btn-black" onclick="aggiornaDashboard()">🔄 Aggiorna dati</button>
 </div>
+
 
 <!-- ══ ACCESSORI ══ -->
 <div class="screen" id="screen-accessori">
@@ -1045,6 +1179,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   </div>
 </div>
 
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1055,54 +1190,17 @@ tick();setInterval(tick,30000);
 // UTILS
 const COSTO_ORA=3.86;
 const SERVER_BASE='https://api.sosmartphone.net';
-// ── GOOGLE SHEETS DATABASE ──────────────────────────────────────────
-// ── Google Sheet ID: 13qCrogKFqRBaMBKqRwB78CfDA5WDAG2n7Ggw4A39UWE
-// Incolla qui l'URL della tua Google Apps Script Web App (vedi database-setup.gs)
-const SHEETS_WRITE_URL = 'https://script.google.com/macros/s/INCOLLA_QUI_URL/exec';
-// URL CSV pubblico del foglio MAGAZZINO (File → Condividi → Pubblica sul web → CSV)
-const SHEETS_CSV_MAGAZZINO = 'https://docs.google.com/spreadsheets/d/13qCrogKFqRBaMBKqRwB78CfDA5WDAG2n7Ggw4A39UWE/pub?gid=0&single=true&output=csv';
-// ── HELPER: fetch con fallback offline ────────────────────────────
-async function apiFetch(url, options){
-  try {
-    const resp = await fetch(url, options);
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
-    return resp;
-  } catch(e) {
-    const isOffline = !navigator.onLine || e.message.includes('Failed to fetch') || e.message.includes('NetworkError');
-    if(isOffline || e.message.startsWith('HTTP 5')){
-      toast('⚠️ Server offline — dati non salvati sul cloud','err');
-    }
-    throw e;
-  }
-}
-
-// Indicatore stato server nella barra header
-let _serverOk = null;
-async function checkServerStatus(){
-  try {
-    await fetch(SERVER_BASE+'/ping', {signal: AbortSignal.timeout(3000)});
-    if(_serverOk !== true){ document.getElementById('clock').style.color=''; _serverOk=true; }
-  } catch(e){
-    if(_serverOk !== false){
-      document.getElementById('clock').style.color='var(--amber)';
-      _serverOk=false;
-    }
-  }
-}
-setInterval(checkServerStatus, 30000);
-setTimeout(checkServerStatus, 2000);
-
 const f=n=>Math.floor(n)+'€';
 const r5=n=>Math.round(Math.max(n,0)/5)*5;
 const RIP={schermo:60,batteria:30,scocca:40,faceid:80,fotocamera:50};
 
 // NAV
-const SCREENS=['home','iscrizione','check','conferma','saldo','prev','rma','vs2','dashboard','storico','accessori','protezione','contratto','splitty','vendita-assistita','registro','assistente','assistenza-screen','database','report','vendi'];
+const SCREENS=['home','iscrizione','check','conferma','saldo','prev','rma','vs2','dashboard','storico','accessori','protezione','contratto','splitty','vendita-assistita','registro','assistente','assistenza-screen','vendi'];
 
 // DASHBOARD CSS aggiuntivo inline già nel CSS
-const CSV_LOG_VENDITE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQc0_8dqJFALQvaVDh1-E0-2wvrwd0UDKPMhTQnNvBIBDxYGZTGdwZZtzJVf68N2UJ9DHYiXigJSpHv/pub?gid=527245953&single=true&output=csv';
+const CSV_LOG_VENDITE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQc0_8dqJFALQvaVDh1-E0-2wvrwd0UDKPMhTQnNvBIBDxYGZTGdwZZtzJVf68N2UJ9DHYiXigJSpHv/pub?gid=504867185&single=true&output=csv';
 
-async function aggiornaDashboard(silent=false){
+async function aggiornaDashboard(){
   try {
     // Carica dati magazzino dal server
     const today = new Date().toISOString().split('T')[0];
@@ -1154,19 +1252,46 @@ async function aggiornaDashboard(silent=false){
     document.getElementById('db-iscr-tot').textContent = '—';
     document.getElementById('db-cod-oggi').textContent = '—';
     document.getElementById('db-premi').textContent = '—';
-    const dvEl=document.getElementById('dash-vendite'); if(dvEl) dvEl.textContent = venditeOggiCount;
-    const drEl=document.getElementById('dash-rma'); if(drEl) drEl.textContent = rmaAperte||'0';
-    if(!silent) toast('Dashboard aggiornata ✓','ok');
+    document.getElementById('dash-vendite').textContent = venditeOggiCount;
+    document.getElementById('dash-rma').textContent = rmaAperte||'0';
+    toast('Dashboard aggiornata','ok');
   } catch(e) {
     console.error('Dashboard error:',e);
-    if(!silent) toast('Errore dashboard','err');
+    toast('Errore dashboard','err');
   }
 }
 
-// STORICO VENDITE (vedi funzioni corrette più avanti)
+// STORICO VENDITE - vedi funzioni corrette più avanti
 
 // ACCESSORI
-const accTabs=['cover','vetro','carica','cavo','pack'];const IFRAME_URLS = {
+const accTabs=['cover','vetro','carica','cavo','pack'];
+function setAccTab(tab){
+  accTabs.forEach(t=>document.getElementById('acc-'+t).style.display=t===tab?'block':'none');
+  document.querySelectorAll('#screen-accessori .tabs .tab').forEach((el,i)=>el.classList.toggle('active',accTabs[i]===tab));
+}
+function calcolaAccessorio(tipo){
+  let costo=0;
+  if(tipo==='pack'){
+    const c=parseFloat(document.getElementById('acc-pack-cover').value)||0;
+    const v=parseFloat(document.getElementById('acc-pack-vetro').value)||0;
+    costo=c+v;
+  }else{
+    costo=parseFloat(document.getElementById('acc-'+tipo+'-costo').value)||0;
+  }
+  if(!costo){toast('Inserisci il costo di acquisto','err');return}
+  const marg=parseInt(document.getElementById('acc-'+tipo+'-marg').value);
+  const prezzo=Math.floor(costo/(1-marg/100));
+  const margE=prezzo-costo;
+  const el=document.getElementById('acc-'+tipo+'-result');
+  el.innerHTML=`
+    <div style="margin-top:12px;background:var(--g50);border-radius:var(--rsm);padding:14px">
+      <div class="rrow"><span class="rrl">Costo acquisto</span><span class="rrv neg">-${Math.floor(costo)}€</span></div>
+      <div class="rrow"><span class="rrl">Margine ${marg}%</span><span class="rrv pos">+${Math.floor(margE)}€</span></div>
+      <div class="rrow" style="padding-top:8px"><span class="rrl" style="font-weight:700;color:var(--black)">Prezzo vendita</span><span class="rrv" style="font-size:22px;color:var(--black)">${prezzo}€</span></div>
+    </div>
+  `;
+}
+const IFRAME_URLS = {
   'iscrizione': 'https://cruciani.formaloo.me/jdgph3',
   'vs2': 'https://cruciani.formaloo.me/9mvni5',
   'vendi': 'https://cruciani.formaloo.me/833e6b',
@@ -1193,10 +1318,6 @@ function goTo(s){
     if(dataEl && !dataEl.value) dataEl.value = new Date().toISOString().split('T')[0];
   }
   if(s === 'rma') loadRmaList();
-  if(s === 'assistenza-screen'){ mostraFormAssistenza(); document.getElementById('ass-lookup-result').style.display='none'; }
-  if(s === 'database'){ setTimeout(loadDatabase,100); }
-  if(s === 'vendi'){ setTimeout(()=>{ const d=document.getElementById('vs-data'); if(d&&!d.value) d.value=new Date().toISOString().split('T')[0]; resetVendiSmartphone(); },100); }
-  if(s === 'report'){ setTimeout(initReport,100); }
   if(s === 'dashboard') aggiornaDashboard();
   if(s === 'vendita-sm'){
     const d=document.getElementById('vs-data');
@@ -1221,8 +1342,8 @@ async function wh(url,data){try{await fetch(url,{method:'POST',headers:{'Content
 
 // PREVENTIVI TABS
 function setTab(tab){
-  ['assistenza'].forEach(t=>document.getElementById('tab-'+t).style.display=t===tab?'block':'none');
-  document.querySelectorAll('#screen-prev .tabs .tab').forEach((el,i)=>el.classList.toggle('active',['assistenza'][i]===tab));
+  ['assistenza','acquisto'].forEach(t=>document.getElementById('tab-'+t).style.display=t===tab?'block':'none');
+  document.querySelectorAll('#screen-prev .tabs .tab').forEach((el,i)=>el.classList.toggle('active',['assistenza','acquisto'][i]===tab));
 }
 
 // RMA TABS
@@ -1425,7 +1546,7 @@ async function apriRma(){
 
   // Salva sul server
   try {
-    await apiFetch(`${SERVER_BASE}/rma`, {
+    await fetch(`${SERVER_BASE}/rma`, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({numero_rma:numRma,telefono:phone,modello,imei,difetto,note,password,stima,nome,cognome})
@@ -1482,6 +1603,11 @@ async function loadRmaList(){
     document.getElementById('rma-list').innerHTML = '<div style="color:var(--err);padding:10px">Errore caricamento pratiche</div>';
   }
 }
+
+function addRmaToList(num,modello,imei,difetto){
+  loadRmaList();
+}
+
 async function aggiornaStato(btn,nuovoStato,rmaId){
   const item=btn.closest('.rma-item');
   const num=item.querySelector('.rma-num').textContent;
@@ -1655,7 +1781,7 @@ async function apriAssistenza(){
   const nome=document.getElementById('ass-nome').value.trim();
   const cognome=document.getElementById('ass-cognome').value.trim();
   const telefono=document.getElementById('ass-telefono').value.trim();
-  const modello=(document.getElementById('ass-mod-dispositivo')||{value:''}).value.trim()||document.getElementById('ass-modello')?.value||'';
+  const modello=document.getElementById('ass-modello').value.trim();
   const imei=document.getElementById('ass-imei').value.trim();
   const difetto=document.getElementById('ass-difetto').value.trim();
   const note=document.getElementById('ass-note').value.trim();
@@ -1673,11 +1799,11 @@ async function apriAssistenza(){
   const numAss=`ASS-${new Date().getFullYear()}-${String(assPatternCounter).padStart(3,'0')}`;
 
   try {
-    await apiFetch(`${SERVER_BASE}/assistenza`, {
+    await fetch(`${SERVER_BASE}/assistenza`, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({numero_pratica:numAss,telefono,modello,imei,difetto,note,password,stima,nome,cognome,preventivo})
-    }).catch(()=>{});
+    });
   } catch(e){}
 
   await wh(WH.rma,{telefono,modello,imei,difetto,note,stima,numero_rma:numAss,password,nome,cognome,tipo:'assistenza',preventivo});
@@ -1694,8 +1820,8 @@ async function apriAssistenza(){
 }
 
 function resetAssistenza(){
-  ['ass-search','ass-nome','ass-cognome','ass-telefono','ass-imei',
-   'ass-mod-dispositivo','ass-difetto','ass-note','ass-preventivo','ass-stima','ass-password'].forEach(id=>{
+  ['ass-search','ass-nome','ass-cognome','ass-telefono','ass-mod-dispositivo','ass-imei',
+   'ass-difetto','ass-note','ass-preventivo','ass-stima','ass-password'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
   document.getElementById('ass-lookup-result').style.display='none';
@@ -1715,13 +1841,70 @@ function send_telegram_js(msg){
 }
 function genLink(cod){return'https://wa.me/?text=Ciao!+Ti+regalo+5%E2%82%AC+di+ricarica+da+SOS+Smartphone+a+Foligno+%F0%9F%93%B1+Usa+il+mio+codice+*'+cod+'*+e+ricevi+5%E2%82%AC+gratis!+Va+bene+per+SIM+Very+Mobile%2C+smartphone%2C+cover+vetro+o+acquisti+sopra+20%E2%82%AC.+Scrivici%3A+wa.me%2F393514068420'}
 
-// ── VENDI SMARTPHONE ──// ISCRIZIONE
+// ── VENDI SMARTPHONE ──
+async function submitVendita(){
+  const nome=document.getElementById('vs-nome').value.trim();
+  const cognome=document.getElementById('vs-cognome').value.trim();
+  const telefono=document.getElementById('vs-telefono').value.trim();
+  const prezzo=document.getElementById('vs-prezzo').value.trim();
+  const modello=document.getElementById('vs-modello').value.trim();
+  const imei=document.getElementById('vs-imei').value.trim();
+  const batteria=document.getElementById('vs-batteria').value.trim();
+  const data=document.getElementById('vs-data').value;
+  if(!nome||!cognome){toast('Inserisci nome e cognome','err');return;}
+  if(!telefono){toast('Inserisci telefono','err');return;}
+  if(!prezzo){toast('Inserisci il prezzo','err');return;}
+  if(!imei){toast('Inserisci IMEI','err');return;}
+  document.getElementById('vs-load').classList.add('show');
+  document.getElementById('ris-vendita').classList.remove('show');
+  const payload={nome,cognome,telefono,prezzo_vendita:prezzo,modello,imei,batteria,data_vendita:data};
+  try {
+    await fetch(`${SERVER_BASE}/registra-vendita`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    await wh('https://connect.pabbly.com/webhook-listener/webhook/IjU3NjUwNTZiMDYzZjA0MzE1MjZkIg_3D_3D_pc/IjU3NjcwNTZlMDYzNDA0Mzc1MjZmNTUzZDUxMzAi_pc',payload);
+    document.getElementById('vs-load').classList.remove('show');
+    document.getElementById('ris-vs-importo').textContent='€'+prezzo;
+    document.getElementById('ris-vs-cliente').textContent=nome+' '+cognome;
+    document.getElementById('ris-vs-modello').textContent=modello||'—';
+    document.getElementById('ris-vs-imei').textContent=imei;
+    document.getElementById('ris-vs-batteria').textContent=batteria?batteria+'%':'—';
+    document.getElementById('ris-vendita').classList.add('show');
+    toast('Vendita registrata ✓','ok');
+  } catch(e){
+    document.getElementById('vs-load').classList.remove('show');
+    toast('Errore connessione','err');
+  }
+}
+function resetVendita(){
+  ['vs-nome','vs-cognome','vs-telefono','vs-prezzo','vs-modello','vs-imei','vs-batteria','vs-data']
+    .forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('ris-vendita').classList.remove('show');
+}
+
+// ISCRIZIONE
 function genCod(nome){
-  const n=(nome||'').toUpperCase().replace(/[^A-Z]/g,'').slice(0,4).padEnd(4,'X');
+  const n=(nome||''). toUpperCase().replace(/[^A-Z]/g,'').slice(0,4).padEnd(4,'X');
   const num=String(Math.floor(10+Math.random()*90));
   return 'REF-'+n+num;
-}// CHECK — lettura diretta Google Sheet tab Referral
-const CSV_REFERRAL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQc0_8dqJFALQvaVDh1-E0-2wvrwd0UDKPMhTQnNvBIBDxYGZTGdwZZtzJVf68N2UJ9DHYiXigJSpHv/pub?gid=527245953&single=true&output=csv';
+}
+async function submitIscrizione(){
+  const nome=document.getElementById('iscr-nome').value.trim();
+  const cognome=document.getElementById('iscr-cognome').value.trim();
+  const phone=document.getElementById('iscr-phone').value.trim();
+  if(!nome||!cognome||!phone){toast('Compila tutti i campi','err');return}
+  document.getElementById('iscr-load').classList.add('show');
+  const cod=genCod(nome);
+  await wh(WH.iscrizione,{nome,cognome,phone,codice:cod,link:genLink(cod)});
+  await new Promise(r=>setTimeout(r,700));
+  document.getElementById('iscr-load').classList.remove('show');
+  document.getElementById('iscr-cod-val').textContent=cod;
+  document.getElementById('iscr-phone-val').textContent=phone;
+  document.getElementById('ris-iscr').classList.add('show');
+  toast('Codice inviato','ok');
+}
+function resetIscrizione(){['iscr-nome','iscr-cognome','iscr-phone'].forEach(id=>document.getElementById(id).value='');document.getElementById('ris-iscr').classList.remove('show')}
+
+// CHECK — lettura diretta Google Sheet tab Referral
+const CSV_REFERRAL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQc0_8dqJFALQvaVDh1-E0-2wvrwd0UDKPMhTQnNvBIBDxYGZTGdwZZtzJVf68N2UJ9DHYiXigJSpHv/pub?gid=1270023066&single=true&output=csv';
 
 function resetCheckResult(){
   ['ris-check-ok','ris-check-err'].forEach(id=>document.getElementById(id).classList.remove('show'));
@@ -1848,7 +2031,6 @@ async function submitConferma(){
   document.getElementById('conf-load').classList.remove('show');
 
   document.getElementById('ris-conf-nc').textContent = nome;
-  document.getElementById('ris-conf-codice').textContent = codice;
   document.getElementById('ris-conf-premio-nc').textContent = '5€';
   document.getElementById('ris-conf-premio-ref').textContent = '5€';
   document.getElementById('ris-conf-importo').textContent = importo + '€';
@@ -1876,46 +2058,10 @@ function cercaSaldo(){
 }
 async function fetchSaldo(phone){
   document.getElementById('saldo-load').classList.add('show');
-  document.getElementById('saldo-result').classList.remove('show');
-  document.getElementById('saldo-empty').style.display='none';
-  try {
-    const resp = await fetch(CSV_REFERRAL + '&t=' + Date.now());
-    const text = await resp.text();
-    const righe = text.split('\n').slice(1);
-    let trovato = null;
-    let count = 0;
-    let euro = 0;
-    // Normalizza telefono: rimuovi +39, spazi, trattini
-    const normTel = t => (t||'').replace(/[\s\-\+]/g,'').replace(/^0039/,'').replace(/^39/,'');
-    const phoneNorm = normTel(phone);
-    for(const riga of righe){
-      const cols = parseCSVLine(riga);
-      if(!cols || cols.length < 4) continue;
-      const tipo  = (cols[1]||'').trim().toLowerCase().replace(/\s+/g,'');
-      const nome  = (cols[2]||'').trim();
-      const tel   = normTel(cols[3]||'');
-      const codice= (cols[4]||'').trim().toUpperCase();
-      if(tel === phoneNorm){
-        if(tipo === 'iscrizione'){
-          trovato = { nome, codice, tel };
-        }
-        if(tipo === 'confermaacquisto' || tipo === 'conferma'){
-          count++;
-          euro += 5;
-        }
-      }
-    }
-    document.getElementById('saldo-load').classList.remove('show');
-    if(trovato){
-      renderSaldo({nome: trovato.nome, codice: trovato.codice, count, euro});
-    } else {
-      document.getElementById('saldo-empty').style.display='block';
-    }
-  } catch(e) {
-    document.getElementById('saldo-load').classList.remove('show');
-    document.getElementById('saldo-empty').style.display='block';
-    toast('Errore lettura dati','err');
-  }
+  await wh(WH.saldo,{phone});
+  await new Promise(r=>setTimeout(r,700));
+  document.getElementById('saldo-load').classList.remove('show');
+  renderSaldo({nome:'Mario Rossi',codice:'REF-MARI23',count:3,euro:15});
 }
 function renderSaldo({nome,codice,count,euro}){
   document.getElementById('s-avatar').textContent=nome.charAt(0);
@@ -2001,8 +2147,76 @@ function togDifetto(i){
   if(difettiChecked.has(i)){difettiChecked.delete(i);row.classList.remove('checked');box.textContent='';}
   else{difettiChecked.add(i);row.classList.add('checked');box.textContent='✓';}
 }
+function calcolaAcquisto(){
+  const mer=parseFloat(document.getElementById('acq-mer').value)||0;
+  const marg=parseInt(document.getElementById('acq-marg').value);
+  if(!mer){toast('Inserisci il valore di mercato','err');return}
+  let dPct=0,sRip=0;
+  const ripMap=[0,60,30,40,0,80,50];
+  difettiChecked.forEach(i=>{
+    const pct=parseFloat(document.getElementById('pct-'+i).value)||0;
+    dPct+=pct;
+    if(ripMap[i])sRip+=ripMap[i];
+  });
+  const bonPct=caricOn?3:0;
+  const agg=mer*(1-dPct/100+bonPct/100);
+  const off=Math.max(r5(agg*(1-marg/100)-sRip),0);
+  document.getElementById('ris-acq-off').textContent=off+'€';
+  document.getElementById('ris-acq-mer').textContent=f(mer);
+  document.getElementById('ris-acq-det').textContent=dPct>0?'-'+Math.floor(dPct)+'%':'—';
+  document.getElementById('ris-acq-bon').textContent=bonPct>0?'+'+f(mer*bonPct/100):'—';
+  document.getElementById('ris-acq-rip').textContent=sRip>0?'-'+f(sRip):'—';
+  document.getElementById('ris-acq-min').textContent=Math.max(r5(off*0.85),0)+'€';
+  document.getElementById('ris-acq-con').textContent=off+'€';
+  document.getElementById('ris-acq-max').textContent=r5(off*1.1)+'€';
+  const al=document.getElementById('ris-acq-alert');
+  if(off>0){al.className='alert alert-s';al.textContent='Range trattativa: '+Math.max(r5(off*0.85),0)+'€ — '+r5(off*1.1)+'€'}
+  else{al.className='alert alert-d';al.textContent='Troppo danneggiato — valuta se conviene acquistarlo'}
+  document.getElementById('ris-acq').classList.add('show');
+}
+function resetAcquisto(){
+  document.getElementById('acq-mer').value='';
+  difettiChecked.clear();
+  for(let i=0;i<7;i++){
+    document.getElementById('difetto-'+i)?.classList.remove('checked');
+    const box=document.getElementById('cbox-'+i);
+    if(box)box.textContent='';
+  }
+  setCaric(true);
+  document.getElementById('ris-acq').classList.remove('show');
+}
+
+// VENDITA
+function calcolaVendita(){
+  const costo=parseFloat(document.getElementById('vend-costo').value)||0;
+  const rip=parseFloat(document.getElementById('vend-rip').value)||0;
+  const tempo=parseFloat(document.getElementById('vend-tempo').value)||0;
+  const marg=parseInt(document.getElementById('vend-marg').value);
+  if(!costo){toast('Inserisci il costo di acquisto','err');return}
+  const fisso=(tempo/60)*COSTO_ORA;
+  const tot=costo+rip+fisso;
+  const netto=tot/(1-marg/100);
+  const iva=netto*0.22;
+  const pz=r5(netto+iva);
+  const mN=netto-tot;
+  document.getElementById('ris-vend-pz').textContent=pz+'€';
+  document.getElementById('ris-vend-cos').textContent='-'+f(costo);
+  document.getElementById('ris-vend-rip').textContent='-'+f(rip);
+  document.getElementById('ris-vend-fis').textContent='-'+f(fisso);
+  document.getElementById('ris-vend-iva').textContent='-'+f(iva);
+  document.getElementById('ris-vend-mar').textContent='+'+f(mN)+' ('+((mN/netto)*100).toFixed(0)+'%)';
+  document.getElementById('ris-vend-min').textContent=r5((tot/(1-0.15))*1.22)+'€';
+  document.getElementById('ris-vend-con').textContent=pz+'€';
+  document.getElementById('ris-vend-pre').textContent=r5((tot/(1-0.55))*1.22)+'€';
+  document.getElementById('ris-vend').classList.add('show');
+}
 
 // DIAGNOSTICA
+function togDiag(el){
+  el.classList.toggle('ok');
+  el.classList.toggle('ko');
+}
+
 function getDiagResults(){
   const results={ok:[],ko:[]};
   document.querySelectorAll('.diag-item').forEach(el=>{
@@ -2010,6 +2224,95 @@ function getDiagResults(){
     else results.ko.push(el.dataset.name);
   });
   return results;
+}
+
+// VENDITA SMARTPHONE
+function lookupImeiVendita(){
+  const imei=document.getElementById('vs-imei').value.trim();
+  if(!imei||imei.length<15){toast('IMEI non valido (15 cifre)','err');return}
+  // Per ora mostra selezione manuale — API si aggiunge dopo
+  document.getElementById('vs-modello-manual').style.display='block';
+  document.getElementById('vs-device-found').style.display='none';
+  toast('Seleziona modello manualmente','');
+}
+
+async function registraVendita(){
+  const nome=document.getElementById('vs-nome').value.trim();
+  const phone=document.getElementById('vs-phone').value.trim();
+  const imei=document.getElementById('vs-imei').value.trim();
+  const modello=document.getElementById('vs-modello').value||document.getElementById('vs-device-name').textContent;
+  const colore=document.getElementById('vs-colore').value;
+  const prezzo=document.getElementById('vs-prezzo').value;
+  const condizione=document.getElementById('vs-condizione').value;
+  const note=document.getElementById('vs-note').value;
+
+  if(!nome){toast('Inserisci nome cliente','err');return}
+  if(!phone){toast('Inserisci telefono','err');return}
+  if(!imei||imei.length<15){toast('IMEI non valido','err');return}
+  if(!modello||modello==='—'){toast('Seleziona il modello','err');return}
+  if(!prezzo){toast('Inserisci il prezzo','err');return}
+  if(!condizione){toast('Seleziona la condizione','err');return}
+
+  document.getElementById('vs-load').classList.add('show');
+
+  const oggi=new Date();
+  const dataVendita=oggi.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const scadenzaGaranzia=new Date(oggi);
+  scadenzaGaranzia.setFullYear(scadenzaGaranzia.getFullYear()+1);
+  const dataScadenza=scadenzaGaranzia.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const numGaranzia='GAR-'+Date.now().toString().slice(-6);
+
+  const diag=getDiagResults();
+
+  const payload={
+    nome_cliente:nome,
+    telefono:phone,
+    imei,modello,prezzo_vendita:parseFloat(prezzo),
+    data_vendita:dataVendita,
+    scadenza_garanzia:dataScadenza,
+    numero_garanzia:numGaranzia,
+    note,
+    diagnostica_ok:diag.ok.join(', '),
+    diagnostica_ko:diag.ko.length>0?diag.ko.join(', '):'Nessuno',
+    source:'app_ipad'
+  };
+
+  await wh(WH.vendita_sm, payload);
+  // Registra vendita in magazzino — lookup IMEI
+  if(imei){
+    fetch(SERVER_MAGAZZINO + '/vendita', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        imei: imei,
+        prezzo_vendita: parseFloat(prezzo),
+        data_vendita: new Date().toISOString().split('T')[0]
+      })
+    }).catch(()=>{});
+  }
+  await new Promise(r=>setTimeout(r,900));
+  document.getElementById('vs-load').classList.remove('show');
+
+  // Mostra risultato
+  document.getElementById('ris-vs-modello').textContent=modello;
+  document.getElementById('ris-vs-nome').textContent=nome;
+  document.getElementById('ris-vs-imei').textContent=imei;
+  document.getElementById('ris-vs-prezzo').textContent=parseFloat(prezzo).toFixed(0)+'€';
+  document.getElementById('ris-vs').classList.add('show');
+  toast('Vendita registrata!','ok');
+}
+
+function resetVenditaSm(){
+  ['vs-nome','vs-phone','vs-imei','vs-note','vs-prezzo'].forEach(id=>document.getElementById(id).value='');
+  ['vs-modello'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('vs-device-found').style.display='none';
+  document.getElementById('vs-modello-manual').style.display='none';
+  document.getElementById('ris-vs').classList.remove('show');
+  // reset diagnostica — tutti verdi
+  document.querySelectorAll('.diag-item').forEach(el=>{
+    el.classList.remove('ko');
+    el.classList.add('ok');
+  });
 }
 
 // LISTINO PREZZI DAL FOGLIO EXCEL
@@ -2065,6 +2368,25 @@ function setBrand(brand){
   document.getElementById('ass-ric').placeholder = brand==='iphone'?'Auto dal listino':'Costo ricambio €';
   document.getElementById('ris-ass').classList.remove('show');
 }
+
+function caricaListino(){
+  const modello = document.getElementById('ass-modello').value;
+  const listEl = document.getElementById('ass-listino');
+  const serviziEl = document.getElementById('ass-servizi-list');
+  if(!modello || !LISTINO[modello]){listEl.style.display='none';return;}
+  listEl.style.display='block';
+  document.getElementById('ass-tipo-ricambio').value='';
+  document.getElementById('ass-ric').value='';
+  renderServiziListino(modello, '');
+}
+
+function aggiornaPrezzoListino(){
+  const modello = document.getElementById('ass-modello').value;
+  const tipo = document.getElementById('ass-tipo-ricambio').value;
+  if(!modello || !LISTINO[modello]) return;
+  renderServiziListino(modello, tipo);
+}
+
 function renderServiziListino(modello, tipo){
   const prezzi = LISTINO[modello];
   const serviziEl = document.getElementById('ass-servizi-list');
@@ -2145,32 +2467,104 @@ function renderStorico(){
 function rimuoviVendita(i){storicoVendite.splice(i,1);renderStorico();}
 
 // DASHBOARD contatori UI
+function aggiornaDashboardUI(){
+  const oggi=new Date().toLocaleDateString('it-IT');
+  document.getElementById('storico-data').textContent=oggi;
+  document.getElementById('dash-vendite').textContent=storicoVendite.length;
+  const rmaAperte=document.querySelectorAll('.rma-item.aperta').length;
+  document.getElementById('dash-rma').textContent=rmaAperte||'0';
+}
+setInterval(aggiornaDashboardUI,5000);
+setTimeout(aggiornaDashboardUI,500);
 
 // PIANO PROTEZIONE SOS
 let protFasciaSelezionata = null;
-let protPrezzoSelezionato = 0;// PIANO PROTEZIONE — iframe Formaloo
+let protPrezzoSelezionato = 0;
+
+function selezionaFascia(n, prezzo){
+  [1,2,3].forEach(i=>{
+    document.getElementById('fascia-'+i).classList.toggle('selected', i===n);
+  });
+  protFasciaSelezionata = n;
+  protPrezzoSelezionato = prezzo;
+  const labels = ['','fino a 300€','300€ — 500€','oltre 500€'];
+  document.getElementById('prot-riepilogo-fascia').textContent = 'Fascia '+n+' — '+labels[n];
+  document.getElementById('prot-riepilogo-prezzo').textContent = prezzo+'€';
+  document.getElementById('prot-form').style.display='block';
+  document.getElementById('ris-prot').classList.remove('show');
+}
+
+async function registraProtezione(){
+  const nome = document.getElementById('prot-nome').value.trim();
+  const phone = document.getElementById('prot-phone').value.trim();
+  const modello = document.getElementById('prot-modello').value;
+  const imei = document.getElementById('prot-imei').value.trim();
+  if(!nome){toast('Inserisci nome cliente','err');return}
+  if(!phone){toast('Inserisci telefono','err');return}
+  if(!modello){toast('Seleziona modello','err');return}
+  if(!protFasciaSelezionata){toast('Seleziona una fascia','err');return}
+
+  document.getElementById('prot-load').classList.add('show');
+
+  const oggi = new Date();
+  const dataAcquisto = oggi.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const scadenza = new Date(oggi);
+  scadenza.setFullYear(scadenza.getFullYear()+1);
+  const dataScadenza = scadenza.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const numProt = 'PROT-'+Date.now().toString().slice(-6);
+
+  await wh(WH.vendita_sm, {
+    tipo:'protezione_sos',
+    nome_cliente:nome, telefono:phone,
+    modello, imei,
+    fascia:protFasciaSelezionata,
+    prezzo:protPrezzoSelezionato,
+    data_acquisto:dataAcquisto,
+    scadenza:dataScadenza,
+    numero:numProt,
+    copre:'Schermo + Back Cover',
+    interventi:1
+  });
+
+  await new Promise(r=>setTimeout(r,800));
+  document.getElementById('prot-load').classList.remove('show');
+
+  document.getElementById('ris-prot-prezzo').textContent = protPrezzoSelezionato+'€';
+  document.getElementById('ris-prot-nome').textContent = nome;
+  document.getElementById('ris-prot-modello').textContent = modello;
+  document.getElementById('ris-prot-scadenza').textContent = dataScadenza;
+  document.getElementById('ris-prot').classList.add('show');
+  toast('Protezione attivata!','ok');
+}
+
+function resetProtezione(){
+  ['prot-nome','prot-phone','prot-imei'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('prot-modello').value='';
+  document.getElementById('prot-form').style.display='none';
+  document.getElementById('ris-prot').classList.remove('show');
+  [1,2,3].forEach(i=>document.getElementById('fascia-'+i).classList.remove('selected'));
+  protFasciaSelezionata=null;
+  protPrezzoSelezionato=0;
+}
+
+// PIANO PROTEZIONE — iframe Formaloo
 document.addEventListener('DOMContentLoaded',()=>{
   const frame = document.getElementById('prot-formaloo-frame');
   const placeholder = document.getElementById('prot-placeholder');
   if(frame){
+    // Nascondi iframe finché non sappiamo se il link è reale
     const src = frame.src;
     if(src.includes('INSERISCI-ID-QUI')){
       frame.style.display='none';
-      if(placeholder) placeholder.style.display='block';
+      placeholder.style.display='block';
     } else {
       frame.style.display='block';
-      if(placeholder) placeholder.style.display='none';
+      placeholder.style.display='none';
     }
   }
   caricaListinoRiparazioni();
-  // Carica dati dashboard in background all'avvio
-  setTimeout(()=>{
-    aggiornaDashboard(true);
-    if(document.getElementById('reg-report-data') && !document.getElementById('reg-report-data').value){
-      document.getElementById('reg-report-data').value = new Date().toISOString().split('T')[0];
-    }
-  }, 1500);
 });
+
 
 function stampaEtichettaDymo(){
   const num   = document.getElementById('ris-rma-num').textContent;
@@ -2254,8 +2648,8 @@ function stampaEtichettaDymo(){
     </div>
   </div>
 </div>
-</${''}body>
-</${''}html>`;
+</body>
+</html>`;
 
   const blob = new Blob([html], {type:'text/html'});
   const url = URL.createObjectURL(blob);
@@ -2554,7 +2948,101 @@ function resetAcquisto() {
   });
 }
 
-// ── VENDITA ──────────────────────────────────────// BANKMYCELL
+// ── VENDITA ──────────────────────────────────────
+async function onCategoriaVendita() {
+  const cat = document.getElementById('vend-categoria').value;
+  const selModello = document.getElementById('vend-modello');
+  selModello.innerHTML = '<option value="">Caricamento...</option>';
+  document.getElementById('vend-capacita').innerHTML = '<option value="">—</option>';
+  document.getElementById('vend-connettivita-wrap').style.display = 'none';
+  document.getElementById('vend-prezzi-box').style.display = 'none';
+  if (!cat) return;
+
+  const righe = await caricaCategoria(cat);
+  const modelli = [...new Set(righe.map(r => r.modello).filter(Boolean))];
+  selModello.innerHTML = '<option value="">Seleziona modello...</option>';
+  modelli.forEach(m => { const o = document.createElement('option'); o.value = m; o.textContent = m; selModello.appendChild(o); });
+}
+
+async function onModelloVendita() {
+  const cat = document.getElementById('vend-categoria').value;
+  const modello = document.getElementById('vend-modello').value;
+  const selCap = document.getElementById('vend-capacita');
+  selCap.innerHTML = '<option value="">Seleziona capacità...</option>';
+  document.getElementById('vend-prezzi-box').style.display = 'none';
+  if (!modello) return;
+
+  const righe = await caricaCategoria(cat);
+  const filtrate = righe.filter(r => r.modello === modello);
+  const hasConn = filtrate.some(r => r.connettivita);
+
+  if (hasConn) {
+    document.getElementById('vend-connettivita-wrap').style.display = 'block';
+    const conn = [...new Set(filtrate.map(r => r.connettivita).filter(Boolean))];
+    const selConn = document.getElementById('vend-connettivita');
+    selConn.innerHTML = '<option value="">Tutte</option>';
+    conn.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; selConn.appendChild(o); });
+  } else {
+    document.getElementById('vend-connettivita-wrap').style.display = 'none';
+  }
+
+  const capacita = [...new Set(filtrate.map(r => r.capacita))];
+  capacita.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; selCap.appendChild(o); });
+}
+
+async function aggiornaPrezziVendita() {
+  const cat = document.getElementById('vend-categoria').value;
+  const modello = document.getElementById('vend-modello').value;
+  const capacita = document.getElementById('vend-capacita').value;
+  const conn = document.getElementById('vend-connettivita') ? document.getElementById('vend-connettivita').value : '';
+  const box = document.getElementById('vend-prezzi-box');
+  if (!capacita) { box.style.display = 'none'; return; }
+
+  const righe = await caricaCategoria(cat);
+  const riga = righe.find(r => r.modello === modello && r.capacita === capacita && (!conn || !r.connettivita || r.connettivita === conn));
+  if (!riga) { box.style.display = 'none'; return; }
+
+  let vend = 0, marg = 0;
+  if (gradoVendita === 'A') { vend = riga.vendA; marg = riga.margA; }
+  else if (gradoVendita === 'B') { vend = riga.vendB; marg = riga.margB; }
+  else { vend = riga.vendC; marg = 0; }
+
+  document.getElementById('vend-prezzo-sheet').textContent = vend + '€';
+  document.getElementById('vend-margine-sheet').textContent = marg > 0 ? marg + '%' : '—';
+  box.style.display = 'block';
+}
+
+function setGradoVendita(g) {
+  gradoVendita = g;
+  ['A','B','C'].forEach(x => document.getElementById('vend-grado-'+x).classList.toggle('active', x === g));
+  aggiornaPrezziVendita();
+}
+
+async function calcolaVendita() {
+  const cat = document.getElementById('vend-categoria').value;
+  const modello = document.getElementById('vend-modello').value;
+  const capacita = document.getElementById('vend-capacita').value;
+  const conn = document.getElementById('vend-connettivita') ? document.getElementById('vend-connettivita').value : '';
+  if (!capacita) { toast('Seleziona modello e capacità','err'); return; }
+
+  const righe = await caricaCategoria(cat);
+  const riga = righe.find(r => r.modello === modello && r.capacita === capacita && (!conn || !r.connettivita || r.connettivita === conn));
+  if (!riga) { toast('Prezzo non trovato','err'); return; }
+
+  let vend = 0, marg = 0;
+  if (gradoVendita === 'A') { vend = riga.vendA; marg = riga.margA; }
+  else if (gradoVendita === 'B') { vend = riga.vendB; marg = riga.margB; }
+  else { vend = riga.vendC; marg = 0; }
+
+  document.getElementById('ris-vend-pz').textContent = vend + '€';
+  document.getElementById('ris-vend-mod').textContent = modello + ' ' + capacita + (conn ? ' ' + conn : '');
+  document.getElementById('ris-vend-gra').textContent = 'Grado ' + gradoVendita;
+  document.getElementById('ris-vend-con').textContent = vend + '€';
+  document.getElementById('ris-vend-mar').textContent = marg > 0 ? marg + '%' : '—';
+  document.getElementById('ris-vend').classList.add('show');
+}
+
+// BANKMYCELL
 function apiBankMyCell(){
   const modello = document.getElementById('acq-modello').value;
   if(!modello){ toast('Seleziona prima il modello','err'); return; }
@@ -2590,12 +3078,169 @@ const WH_CONTRATTO = 'https://connect.pabbly.com/webhook-listener/webhook/IjU3Nj
 const SERVER_CONTRATTO = 'https://api.sosmartphone.net/genera-contratto';
 const SERVER_MAGAZZINO = 'https://api.sosmartphone.net/magazzino';
 const SERVER_OTP_GENERA = 'https://api.sosmartphone.net/genera-otp';
-const SERVER_OTP_VERIFICA = 'https://api.sosmartphone.net/verifica-otp';let _provaAcquisto = 'SI';
+const SERVER_OTP_VERIFICA = 'https://api.sosmartphone.net/verifica-otp';
+
+function toggleIban(){
+  const p = document.getElementById('con-pagamento').value;
+  document.getElementById('con-iban-wrap').style.display = p === 'BONIFICO' ? 'block' : 'none';
+}
+
+let _provaAcquisto = 'SI';
 function setProva(val){
   _provaAcquisto = val;
   document.getElementById('con-prova-si').classList.toggle('active', val === 'SI');
   document.getElementById('con-prova-no').classList.toggle('active', val === 'NO');
-}</script>
+}
+
+async function submitContratto(){
+  const nome     = document.getElementById('con-nome').value.trim();
+  const cognome  = document.getElementById('con-cognome').value.trim();
+  const articolo = document.getElementById('con-articolo').value.trim();
+  const imei     = document.getElementById('con-imei').value.trim();
+  const prezzo   = document.getElementById('con-prezzo').value.trim();
+
+  if(!nome||!cognome){ toast('Inserisci nome e cognome','err'); return; }
+  if(!articolo){ toast('Inserisci il modello','err'); return; }
+  if(!imei){ toast('Inserisci IMEI','err'); return; }
+  if(!prezzo){ toast('Inserisci il prezzo','err'); return; }
+
+  document.getElementById('con-load').classList.add('show');
+  document.getElementById('ris-contratto').classList.remove('show');
+
+  const data_contratto = document.getElementById('con-data').value || new Date().toISOString().split('T')[0];
+  const nr_pratica = data_contratto.replace(/-/g,'') + '-' + String(Date.now()).slice(-3);
+
+  const payload = {
+    nr_pratica:          nr_pratica,
+    acquirente_nome:     nome,
+    acquirente_cognome:  cognome,
+    acquirente_nato_a:   document.getElementById('con-nato').value.trim(),
+    acquirente_prov:     document.getElementById('con-prov').value.trim().toUpperCase(),
+    acquirente_residente:document.getElementById('con-residente').value.trim(),
+    acquirente_via:      document.getElementById('con-via').value.trim(),
+    acquirente_doc_tipo: document.getElementById('con-doc-tipo').value,
+    acquirente_doc_n:    document.getElementById('con-doc-n').value.trim().toUpperCase(),
+    acquirente_doc_rilasciato: document.getElementById('con-doc-ril').value.trim(),
+    acquirente_telefono: document.getElementById('con-tel').value.trim(),
+    acquirente_email:    document.getElementById('con-email').value.trim(),
+    acquirente_cf:       document.getElementById('con-cf').value.trim().toUpperCase(),
+    articolo:            articolo,
+    imei:                imei,
+    garanzia:            document.getElementById('con-garanzia').value.trim(),
+    prova_acquisto:      _provaAcquisto,
+    prezzo_numeri:       prezzo,
+    prezzo_lettere:      document.getElementById('con-prezzo-lettere').value.trim(),
+    pagamento:           document.getElementById('con-pagamento').value,
+    iban:                document.getElementById('con-iban').value.trim().toUpperCase(),
+    data_contratto:      data_contratto,
+  };
+
+  try {
+    // Manda a Pabbly → Crove genera PDF
+    fetch(WH_CONTRATTO, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+
+    // Registra acquisto in magazzino VPS
+    fetch(SERVER_MAGAZZINO + '/acquisto', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        data_acquisto: data_contratto,
+        nr_pratica:    nr_pratica,
+        modello:       articolo,
+        imei:          imei,
+        prezzo_acquisto: parseFloat(prezzo),
+        venditore:     nome + ' ' + cognome,
+        documento:     payload.acquirente_doc_n
+      })
+    }).catch(()=>{});
+
+    document.getElementById('con-load').classList.remove('show');
+    _conTelefono = payload.acquirente_telefono;
+    _conNumero   = nr_pratica;
+    document.getElementById('ris-con-numero').textContent = nr_pratica;
+    document.getElementById('ris-con-cliente').textContent = nome + ' ' + cognome;
+    document.getElementById('ris-con-articolo').textContent = articolo;
+    document.getElementById('ris-con-prezzo').textContent = prezzo + '€';
+    document.getElementById('ris-contratto').classList.add('show');
+    toast('Contratto inviato ✓','ok');
+
+  } catch(e) {
+    document.getElementById('con-load').classList.remove('show');
+    toast('Errore invio dati','err');
+  }
+}
+
+async function inviaOTP(){
+  if(!_conTelefono){ toast('Nessun telefono cliente','err'); return; }
+  document.getElementById('otp-load').style.display = 'flex';
+  document.getElementById('btn-invia-otp').style.display = 'none';
+  try {
+    const resp = await fetch(SERVER_OTP_GENERA, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({telefono: _conTelefono, numero_contratto: _conNumero})
+    });
+    const result = await resp.json();
+    document.getElementById('otp-load').style.display = 'none';
+    if(result.status === 'ok'){
+      // Manda OTP via Pabbly WhatsApp
+      fetch(WH_CONTRATTO, {method:'POST',headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({tipo:'otp', telefono: _conTelefono, codice: result.codice, numero_contratto: _conNumero})});
+      document.getElementById('otp-input-section').style.display = 'block';
+      toast('OTP inviato via WhatsApp ✓','ok');
+    } else {
+      document.getElementById('btn-invia-otp').style.display = 'block';
+      toast('Errore invio OTP','err');
+    }
+  } catch(e) {
+    document.getElementById('otp-load').style.display = 'none';
+    document.getElementById('btn-invia-otp').style.display = 'block';
+    toast('Errore connessione','err');
+  }
+}
+
+async function verificaOTP(){
+  const codice = document.getElementById('con-otp-input').value.trim();
+  if(codice.length !== 6){ toast('Inserisci 6 cifre','err'); return; }
+  try {
+    const resp = await fetch(SERVER_OTP_VERIFICA, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({telefono: _conTelefono, codice: codice})
+    });
+    const result = await resp.json();
+    if(result.status === 'ok'){
+      document.getElementById('otp-success').style.display = 'block';
+      document.getElementById('otp-error').style.display = 'none';
+      document.getElementById('otp-input-section').style.display = 'none';
+      toast('Contratto firmato ✓','ok');
+    } else {
+      document.getElementById('otp-error').style.display = 'block';
+      toast('OTP non valido','err');
+    }
+  } catch(e) {
+    toast('Errore connessione','err');
+  }
+}
+
+function resetContratto(){
+  ['con-nome','con-cognome','con-nato','con-prov','con-residente','con-via',
+   'con-doc-n','con-doc-ril','con-tel','con-email','con-cf',
+   'con-articolo','con-imei','con-garanzia','con-prezzo','con-prezzo-lettere','con-iban']
+  .forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  // Reset data a oggi
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('con-data').value = today;
+  document.getElementById('con-iban-wrap').style.display = 'none';
+  document.getElementById('ris-contratto').classList.remove('show');
+  _conTelefono = ''; _conNumero = '';
+  setProva('SI');
+}
+</script>
 
 <!-- ══ VENDITA ASSISTITA ══ -->
 <div class="screen" id="screen-vendita-assistita">
@@ -3552,233 +4197,6 @@ function resetChat(){
   </div>
 </div>
 
-<!-- ══ DATABASE SMARTPHONE ══ -->
-<div class="screen" id="screen-database">
-  <div class="bhdr">
-    <button class="bbtn" onclick="goTo('home')">←</button>
-    <div><div class="btitle">Database Smartphone</div><div class="bsub">Acquisti · Vendite · Magazzino</div></div>
-    <button class="btn btn-sm btn-black" onclick="loadDatabase()" style="width:auto;padding:8px 12px">🔄</button>
-  </div>
-
-  <!-- STATISTICHE RAPIDE -->
-  <div class="stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px">
-    <div class="db-stat"><div class="db-stat-v" id="db-count-mag" style="color:var(--amber)">—</div><div class="db-stat-l">In magazzino</div></div>
-    <div class="db-stat"><div class="db-stat-v" id="db-count-vend" style="color:var(--green)">—</div><div class="db-stat-l">Venduti</div></div>
-    <div class="db-stat"><div class="db-stat-v" id="db-count-tot">—</div><div class="db-stat-l">Totale</div></div>
-  </div>
-
-  <!-- TABS -->
-  <div class="tabs">
-    <button class="tab active" onclick="setDbTab('magazzino')">📦 Magazzino</button>
-    <button class="tab" onclick="setDbTab('acquisto')">➕ Acquisto</button>
-    <button class="tab" onclick="setDbTab('vendita')">💰 Vendita</button>
-    <button class="tab" onclick="setDbTab('cerca')">🔍 Cerca</button>
-  </div>
-
-  <!-- TAB MAGAZZINO -->
-  <div id="db-tab-magazzino">
-    <div class="loading" id="db-load"><span class="spinner"></span>Caricamento...</div>
-    <div id="db-list-wrap" style="overflow-x:auto">
-      <table class="db-table" id="db-table">
-        <thead><tr>
-          <th>Modello</th><th>IMEI</th><th>Acq.</th><th>Stato</th>
-        </tr></thead>
-        <tbody id="db-tbody"></tbody>
-      </table>
-    </div>
-    <div id="db-empty" style="display:none;text-align:center;padding:30px;color:var(--g400)">
-      <div style="font-size:28px;margin-bottom:8px">📦</div>
-      <div style="font-size:13px">Nessun dispositivo trovato</div>
-    </div>
-  </div>
-
-  <!-- TAB ACQUISTO -->
-  <div id="db-tab-acquisto" style="display:none">
-    <div class="card">
-      <div class="fg"><label class="fl">Modello</label>
-        <input type="text" class="fi" id="db-acq-modello" placeholder="Es. iPhone 13 128GB Midnight" autocomplete="off">
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div class="fg"><label class="fl">Storage</label>
-          <select class="fi" id="db-acq-storage">
-            <option value="">—</option>
-            <option>64GB</option><option>128GB</option><option>256GB</option>
-            <option>512GB</option><option>1TB</option>
-          </select>
-        </div>
-        <div class="fg"><label class="fl">Colore</label>
-          <input type="text" class="fi" id="db-acq-colore" placeholder="Es. Midnight">
-        </div>
-      </div>
-      <div class="fg"><label class="fl">IMEI (15 cifre)</label>
-        <input type="text" class="fi" id="db-acq-imei" placeholder="354123456789012"
-          style="font-family:monospace;letter-spacing:1px"
-          oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)">
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div class="fg"><label class="fl">Prezzo acquisto (€)</label>
-          <input type="number" class="fi" id="db-acq-prezzo" placeholder="Es. 250" min="0" step="5">
-        </div>
-        <div class="fg"><label class="fl">Data acquisto</label>
-          <input type="date" class="fi" id="db-acq-data">
-        </div>
-      </div>
-      <div class="fg"><label class="fl">Nome venditore</label>
-        <input type="text" class="fi" id="db-acq-venditore" placeholder="Nome e Cognome" autocomplete="off">
-      </div>
-      <div class="fg"><label class="fl">N° documento venditore</label>
-        <input type="text" class="fi" id="db-acq-doc" placeholder="Es. AB1234567" autocomplete="off"
-          style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
-      </div>
-      <div class="fg"><label class="fl">Note</label>
-        <input type="text" class="fi" id="db-acq-note" placeholder="Es. Grado B, batteria 85%">
-      </div>
-      <div class="loading" id="db-acq-load"><span class="spinner"></span>Salvataggio...</div>
-      <button class="btn btn-black" onclick="salvaAcquisto()">📥 Registra acquisto</button>
-    </div>
-    <div class="result" id="ris-db-acq">
-      <div class="rtop success">
-        <div><div class="rtop-lbl">Acquisto registrato ✓</div><div class="ramount" id="ris-db-acq-id" style="font-size:18px">—</div></div>
-        <div class="ricon">📱</div>
-      </div>
-      <div class="rbody">
-        <div class="rrow"><span class="rrl">Modello</span><span class="rrv" id="ris-db-acq-mod">—</span></div>
-        <div class="rrow"><span class="rrl">IMEI</span><span class="rrv" id="ris-db-acq-imei" style="font-family:monospace;font-size:11px">—</span></div>
-        <div class="rrow"><span class="rrl">Prezzo</span><span class="rrv neg" id="ris-db-acq-pz">—</span></div>
-        <button class="btn btn-outline" style="margin-top:10px" onclick="resetAcquistoDb()">Nuovo acquisto</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB VENDITA -->
-  <div id="db-tab-vendita" style="display:none">
-    <div class="card">
-      <div class="fg"><label class="fl">IMEI del dispositivo venduto</label>
-        <div style="display:flex;gap:8px">
-          <input type="text" class="fi" id="db-vend-imei" placeholder="354123456789012"
-            style="font-family:monospace;flex:1;margin:0"
-            oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)">
-          <button onclick="cercaImeiDb()" style="background:#111;color:white;border:none;border-radius:10px;padding:14px 16px;font-size:14px;font-weight:700;cursor:pointer">🔍</button>
-        </div>
-      </div>
-      <div id="db-vend-found" style="display:none;background:var(--gl);border:1px solid #bbf7d0;border-radius:var(--rsm);padding:10px;margin-bottom:10px">
-        <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:5px">TROVATO ✓</div>
-        <div class="rrow"><span class="rrl">Modello</span><span class="rrv" id="db-vend-found-mod">—</span></div>
-        <div class="rrow"><span class="rrl">Acquistato</span><span class="rrv" id="db-vend-found-pz">—</span></div>
-      </div>
-      <div class="fg"><label class="fl">Nome cliente</label>
-        <input type="text" class="fi" id="db-vend-cliente" placeholder="Nome e Cognome" autocomplete="off">
-      </div>
-      <div class="fg"><label class="fl">Telefono cliente</label>
-        <input type="tel" class="fi" id="db-vend-tel" placeholder="3401234567">
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div class="fg"><label class="fl">Prezzo vendita (€)</label>
-          <input type="number" class="fi" id="db-vend-prezzo" placeholder="Es. 399" min="0" step="5"
-            oninput="aggiornaMargineLive()">
-        </div>
-        <div class="fg"><label class="fl">Data vendita</label>
-          <input type="date" class="fi" id="db-vend-data">
-        </div>
-      </div>
-      <div id="db-margine-live" style="display:none;background:var(--gl);border-radius:var(--rsm);padding:10px;text-align:center;margin-bottom:8px">
-        <div style="font-size:10px;color:var(--g400);text-transform:uppercase;margin-bottom:2px">Margine stimato</div>
-        <div id="db-margine-val" style="font-size:22px;font-weight:700;color:var(--green)">—</div>
-      </div>
-      <div class="loading" id="db-vend-load"><span class="spinner"></span>Salvataggio...</div>
-      <button class="btn btn-green" onclick="salvaVendita()">💰 Registra vendita</button>
-    </div>
-    <div class="result" id="ris-db-vend">
-      <div class="rtop success">
-        <div><div class="rtop-lbl">Vendita registrata ✓</div><div class="ramount" id="ris-db-vend-margine">+€—</div></div>
-        <div class="ricon">💰</div>
-      </div>
-      <div class="rbody">
-        <div class="rrow"><span class="rrl">Modello</span><span class="rrv" id="ris-db-vend-mod">—</span></div>
-        <div class="rrow"><span class="rrl">Cliente</span><span class="rrv" id="ris-db-vend-cliente">—</span></div>
-        <div class="rrow"><span class="rrl">Prezzo vendita</span><span class="rrv pos" id="ris-db-vend-pz">—</span></div>
-        <div class="rrow"><span class="rrl">Prezzo acquisto</span><span class="rrv neg" id="ris-db-vend-acq">—</span></div>
-        <button class="btn btn-outline" style="margin-top:10px" onclick="resetVenditaDb()">Nuova vendita</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB CERCA -->
-  <div id="db-tab-cerca" style="display:none">
-    <div class="card">
-      <div style="display:flex;gap:8px">
-        <input type="text" class="fi" id="db-search-input"
-          placeholder="IMEI, modello o cliente..." style="flex:1;margin:0">
-        <button onclick="cercaDb()" style="background:#111;color:white;border:none;border-radius:10px;padding:14px 16px;font-size:14px;font-weight:700;cursor:pointer">🔍</button>
-      </div>
-    </div>
-    <div id="db-search-results"></div>
-  </div>
-</div>
-
-<!-- ══ REPORT GIORNALIERO ══ -->
-<div class="screen" id="screen-report">
-  <div class="bhdr">
-    <button class="bbtn" onclick="goTo('home')">←</button>
-    <div><div class="btitle">Report Giornaliero</div><div class="bsub" id="report-data-lbl">Oggi</div></div>
-    <input type="date" id="report-data-sel" class="fi"
-      style="width:130px;padding:6px 8px;font-size:12px;border-radius:8px;margin:0"
-      onchange="loadReport()">
-  </div>
-
-  <div class="loading" id="report-load"><span class="spinner"></span>Caricamento dati...</div>
-
-  <!-- TOTALI GIORNATA -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px" id="report-stats">
-    <div class="db-stat" style="border-left:3px solid var(--red)">
-      <div class="db-stat-v" id="rep-tot-acq" style="color:var(--red)">—</div>
-      <div class="db-stat-l">Acquistato</div>
-    </div>
-    <div class="db-stat" style="border-left:3px solid var(--green)">
-      <div class="db-stat-v" id="rep-tot-vend" style="color:var(--green)">—</div>
-      <div class="db-stat-l">Incassato</div>
-    </div>
-    <div class="db-stat" style="border-left:3px solid var(--amber)">
-      <div class="db-stat-v" id="rep-n-acq" style="color:var(--amber)">—</div>
-      <div class="db-stat-l">Acquisti</div>
-    </div>
-    <div class="db-stat" style="border-left:3px solid var(--blue)">
-      <div class="db-stat-v" id="rep-n-vend" style="color:var(--blue)">—</div>
-      <div class="db-stat-l">Vendite</div>
-    </div>
-  </div>
-
-  <!-- MARGINE BANNER -->
-  <div id="rep-margine-banner" class="cbanner" style="display:none">
-    <div class="cbleft">Margine netto giornata<br><span id="rep-margine-sub" style="font-size:9px"></span></div>
-    <div id="rep-margine-val" class="cbright">+€—</div>
-  </div>
-
-  <!-- ACQUISTI DEL GIORNO -->
-  <div class="report-section" id="rep-acq-section" style="display:none">
-    <div class="report-title">📥 Acquisti del giorno</div>
-    <div id="rep-acq-list"></div>
-  </div>
-
-  <!-- VENDITE DEL GIORNO -->
-  <div class="report-section" id="rep-vend-section" style="display:none">
-    <div class="report-title">💰 Vendite del giorno</div>
-    <div id="rep-vend-list"></div>
-  </div>
-
-  <!-- MAGAZZINO CORRENTE -->
-  <div class="report-section">
-    <div class="report-title">📦 In magazzino ora (<span id="rep-mag-count">—</span> dispositivi)</div>
-    <div id="rep-mag-list">
-      <div style="text-align:center;padding:16px;color:var(--g400);font-size:12px">Caricamento...</div>
-    </div>
-  </div>
-
-  <div id="rep-empty" style="display:none;text-align:center;padding:30px;color:var(--g400)">
-    <div style="font-size:28px;margin-bottom:8px">📅</div>
-    <div style="font-size:13px">Nessun movimento per questa data</div>
-  </div>
-</div>
 
 <!-- ══ VENDI SMARTPHONE ══ -->
 <div class="screen iframe-screen" id="screen-vendi">
@@ -3807,7 +4225,7 @@ function resetChat(){
     <span style="font-size:22px">🛠️</span>
     <span style="font-size:10px;color:#666">Assistenza</span>
   </button>
-  <button onclick="goTo('vendi')" style="background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 12px;cursor:pointer">
+  <button onclick="goTo('vs2')" style="background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 12px;cursor:pointer">
     <span style="font-size:22px">🧾</span>
     <span style="font-size:10px;color:#666">Vendita</span>
   </button>
@@ -3815,473 +4233,7 @@ function resetChat(){
     <span style="font-size:22px">📊</span>
     <span style="font-size:10px;color:#666">Dashboard</span>
   </button>
-  <button onclick="goTo('database')" style="background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 12px;cursor:pointer">
-    <span style="font-size:22px">🗄️</span>
-    <span style="font-size:10px;color:#666">DB</span>
-  </button>
-  <button onclick="goTo('report');initReport()" style="background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 12px;cursor:pointer">
-    <span style="font-size:22px">📊</span>
-    <span style="font-size:10px;color:#666">Report</span>
-  </button>
 </nav>
-
-<script>
-// ── DEMO: precompila form con dati realistici ──────────────────────────────</script>
-
-<script>
-// ══ DATABASE SMARTPHONE ══════════════════════════════════════════════
-
-let DB_CACHE = []; // cache locale dati magazzino
-let DB_PREZZO_ACQUISTO_CORRENTE = 0; // per calcolo margine live
-
-// ── TAB DATABASE ─────────────────────────────────────────────────────
-const DB_TABS = ['magazzino','acquisto','vendita','cerca'];
-function setDbTab(tab){
-  DB_TABS.forEach(t=>{
-    const el = document.getElementById('db-tab-'+t);
-    if(el) el.style.display = t===tab ? 'block' : 'none';
-  });
-  document.querySelectorAll('#screen-database .tabs .tab').forEach((el,i)=>{
-    el.classList.toggle('active', DB_TABS[i]===tab);
-  });
-  if(tab==='magazzino') loadDatabase();
-}
-
-// ── CARICA DATABASE ───────────────────────────────────────────────────
-async function loadDatabase(){
-  document.getElementById('db-load').classList.add('show');
-  document.getElementById('db-empty').style.display='none';
-  try {
-    const resp = await fetch(SHEETS_WRITE_URL+'?tipo=read');
-    const data = await resp.json();
-    document.getElementById('db-load').classList.remove('show');
-    if(data.status === 'ok'){
-      DB_CACHE = data.rows || [];
-      renderDatabase(DB_CACHE);
-    } else {
-      toast('Errore caricamento: '+data.msg,'err');
-    }
-  } catch(e){
-    document.getElementById('db-load').classList.remove('show');
-    // Fallback: prova CSV pubblico
-    await loadDatabaseCSV();
-  }
-}
-
-async function loadDatabaseCSV(){
-  try {
-    if(!SHEETS_CSV_MAGAZZINO || SHEETS_CSV_MAGAZZINO.includes('INCOLLA_ID')) return;
-    const resp = await fetch(SHEETS_CSV_MAGAZZINO+'&t='+Date.now());
-    const text = await resp.text();
-    const lines = text.split('\n').filter(l=>l.trim());
-    DB_CACHE = [];
-    for(let i=1;i<lines.length;i++){
-      const c = parseCSVLine(lines[i]);
-      if(!c[0]) continue;
-      DB_CACHE.push({
-        id:c[0],data:c[1],modello:c[2],imei:c[3],storage:c[4],colore:c[5],
-        prezzo_acquisto:parseFloat(c[6])||0,venditore:c[7],doc_venditore:c[8],
-        stato:c[9],data_vendita:c[10],cliente:c[11],tel_cliente:c[12],
-        prezzo_vendita:parseFloat(c[13])||0,margine:parseFloat(c[14])||0,note:c[15]
-      });
-    }
-    renderDatabase(DB_CACHE);
-  } catch(e){ toast('Errore lettura CSV','err'); }
-}
-
-function renderDatabase(rows){
-  const inMag   = rows.filter(r=>r.stato==='magazzino').length;
-  const venduti  = rows.filter(r=>r.stato==='venduto').length;
-  document.getElementById('db-count-mag').textContent  = inMag;
-  document.getElementById('db-count-vend').textContent = venduti;
-  document.getElementById('db-count-tot').textContent  = rows.length;
-
-  const tbody = document.getElementById('db-tbody');
-  if(!rows.length){
-    tbody.innerHTML = '';
-    document.getElementById('db-empty').style.display='block';
-    return;
-  }
-  // Mostra prima i dispositivi in magazzino
-  const sorted = [...rows].sort((a,b)=>{
-    if(a.stato==='magazzino' && b.stato!=='magazzino') return -1;
-    if(a.stato!=='magazzino' && b.stato==='magazzino') return 1;
-    return 0;
-  });
-  tbody.innerHTML = sorted.map(r=>`
-    <tr>
-      <td><b>${r.modello||'—'}</b><br><span style="font-size:9px;color:var(--g400)">${r.storage||''} ${r.colore||''}</span></td>
-      <td style="font-family:monospace;font-size:10px">${(r.imei||'—').slice(-6)}</td>
-      <td style="white-space:nowrap">€${r.prezzo_acquisto||0}</td>
-      <td><span class="stato-${r.stato==='magazzino'?'mag':r.stato==='venduto'?'vend':'rip'}">${r.stato==='magazzino'?'📦 Stock':r.stato==='venduto'?'✅ Venduto':'🔧 Rip.'}</span></td>
-    </tr>
-  `).join('');
-}
-
-// ── SALVA ACQUISTO ────────────────────────────────────────────────────
-async function salvaAcquisto(){
-  const modello = document.getElementById('db-acq-modello').value.trim();
-  const imei    = document.getElementById('db-acq-imei').value.trim();
-  const prezzo  = document.getElementById('db-acq-prezzo').value;
-  const venditore = document.getElementById('db-acq-venditore').value.trim();
-  const doc     = document.getElementById('db-acq-doc').value.trim();
-  if(!modello){ toast('Inserisci il modello','err'); return; }
-  if(!imei || imei.length<15){ toast('IMEI non valido (15 cifre)','err'); return; }
-  if(!prezzo){ toast('Inserisci il prezzo','err'); return; }
-  if(!venditore){ toast('Inserisci il nome del venditore','err'); return; }
-
-  document.getElementById('db-acq-load').classList.add('show');
-  document.getElementById('ris-db-acq').classList.remove('show');
-
-  const payload = {
-    tipo: 'acquisto',
-    modello,
-    imei,
-    storage:   document.getElementById('db-acq-storage').value,
-    colore:    document.getElementById('db-acq-colore').value.trim(),
-    prezzo_acquisto: parseFloat(prezzo),
-    venditore,
-    doc_venditore: doc,
-    data:      document.getElementById('db-acq-data').value || new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}),
-    note:      document.getElementById('db-acq-note').value.trim()
-  };
-
-  try {
-    const resp = await fetch(SHEETS_WRITE_URL, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-    const result = await resp.json();
-    document.getElementById('db-acq-load').classList.remove('show');
-    if(result.status === 'ok'){
-      document.getElementById('ris-db-acq-id').textContent  = result.id;
-      document.getElementById('ris-db-acq-mod').textContent = modello;
-      document.getElementById('ris-db-acq-imei').textContent = imei;
-      document.getElementById('ris-db-acq-pz').textContent = '-€'+prezzo;
-      document.getElementById('ris-db-acq').classList.add('show');
-      toast('Acquisto salvato ✓','ok');
-      // Aggiorna anche magazzino app
-      aggiornaDashboard();
-    } else if(result.status === 'duplicate'){
-      toast('IMEI già presente nel database!','err');
-    } else {
-      toast('Errore: '+result.msg,'err');
-    }
-  } catch(e){
-    document.getElementById('db-acq-load').classList.remove('show');
-    toast('Errore connessione — configura SHEETS_WRITE_URL','err');
-  }
-}
-
-function resetAcquistoDb(){
-  ['db-acq-modello','db-acq-imei','db-acq-prezzo','db-acq-venditore',
-   'db-acq-doc','db-acq-note','db-acq-colore'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  document.getElementById('db-acq-storage').value='';
-  document.getElementById('ris-db-acq').classList.remove('show');
-}
-
-// ── CERCA IMEI PER VENDITA ─────────────────────────────────────────────
-async function cercaImeiDb(){
-  const imei = document.getElementById('db-vend-imei').value.trim();
-  if(!imei){ toast('Inserisci IMEI','err'); return; }
-  // Prima cerca in cache locale
-  let row = DB_CACHE.find(r=>r.imei===imei && r.stato==='magazzino');
-  if(!row){
-    // Se cache vuota o non trovato, ricarica
-    await loadDatabase();
-    row = DB_CACHE.find(r=>r.imei===imei && r.stato==='magazzino');
-  }
-  if(row){
-    document.getElementById('db-vend-found-mod').textContent = row.modello + (row.storage?' '+row.storage:'');
-    document.getElementById('db-vend-found-pz').textContent  = '€'+row.prezzo_acquisto;
-    document.getElementById('db-vend-found').style.display = 'block';
-    DB_PREZZO_ACQUISTO_CORRENTE = parseFloat(row.prezzo_acquisto)||0;
-    aggiornaMargineLive();
-    toast('Dispositivo trovato ✓','ok');
-  } else {
-    document.getElementById('db-vend-found').style.display='none';
-    DB_PREZZO_ACQUISTO_CORRENTE=0;
-    toast('IMEI non trovato in magazzino','err');
-  }
-}
-
-function aggiornaMargineLive(){
-  const pz = parseFloat(document.getElementById('db-vend-prezzo').value)||0;
-  if(pz>0 && DB_PREZZO_ACQUISTO_CORRENTE>0){
-    const marg = pz - DB_PREZZO_ACQUISTO_CORRENTE;
-    const el = document.getElementById('db-margine-val');
-    el.textContent = (marg>=0?'+':'')+marg.toFixed(0)+'€';
-    el.style.color = marg>=0?'var(--green)':'var(--red)';
-    document.getElementById('db-margine-live').style.display='block';
-  }
-}
-
-// ── SALVA VENDITA ─────────────────────────────────────────────────────
-async function salvaVendita(){
-  const imei    = document.getElementById('db-vend-imei').value.trim();
-  const cliente = document.getElementById('db-vend-cliente').value.trim();
-  const tel     = document.getElementById('db-vend-tel').value.trim();
-  const prezzo  = document.getElementById('db-vend-prezzo').value;
-  if(!imei){ toast('Inserisci IMEI','err'); return; }
-  if(!cliente){ toast('Inserisci nome cliente','err'); return; }
-  if(!prezzo){ toast('Inserisci prezzo vendita','err'); return; }
-
-  document.getElementById('db-vend-load').classList.add('show');
-  document.getElementById('ris-db-vend').classList.remove('show');
-
-  const row = DB_CACHE.find(r=>r.imei===imei);
-  const payload = {
-    tipo: 'vendita',
-    imei,
-    cliente,
-    tel_cliente: tel,
-    prezzo_vendita: parseFloat(prezzo),
-    data_vendita: document.getElementById('db-vend-data').value || new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})
-  };
-
-  try {
-    const resp = await fetch(SHEETS_WRITE_URL, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-    const result = await resp.json();
-    document.getElementById('db-vend-load').classList.remove('show');
-    if(result.status === 'ok'){
-      const marg = result.margine||0;
-      document.getElementById('ris-db-vend-margine').textContent = (marg>=0?'+':'')+marg.toFixed(0)+'€';
-      document.getElementById('ris-db-vend-margine').style.color = marg>=0?'var(--green)':'var(--red)';
-      document.getElementById('ris-db-vend-mod').textContent = row?row.modello:'—';
-      document.getElementById('ris-db-vend-cliente').textContent = cliente;
-      document.getElementById('ris-db-vend-pz').textContent = '+€'+prezzo;
-      document.getElementById('ris-db-vend-acq').textContent = '-€'+(result.prezzo_acquisto||0);
-      document.getElementById('ris-db-vend').classList.add('show');
-      toast('Vendita salvata ✓','ok');
-      aggiornaDashboard();
-      await loadDatabase();
-    } else {
-      toast('Errore: '+result.msg,'err');
-    }
-  } catch(e){
-    document.getElementById('db-vend-load').classList.remove('show');
-    toast('Errore connessione','err');
-  }
-}
-
-function resetVenditaDb(){
-  ['db-vend-imei','db-vend-cliente','db-vend-tel','db-vend-prezzo'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  document.getElementById('db-vend-found').style.display='none';
-  document.getElementById('db-margine-live').style.display='none';
-  document.getElementById('ris-db-vend').classList.remove('show');
-  DB_PREZZO_ACQUISTO_CORRENTE=0;
-}
-
-// ── CERCA FULL TEXT ────────────────────────────────────────────────────
-async function cercaDb(){
-  const q = document.getElementById('db-search-input').value.trim().toLowerCase();
-  if(!q){ toast('Inserisci cosa cercare','err'); return; }
-  if(!DB_CACHE.length) await loadDatabase();
-  const risultati = DB_CACHE.filter(r=>
-    (r.modello||'').toLowerCase().includes(q) ||
-    (r.imei||'').includes(q) ||
-    (r.cliente||'').toLowerCase().includes(q) ||
-    (r.venditore||'').toLowerCase().includes(q)
-  );
-  const el = document.getElementById('db-search-results');
-  if(!risultati.length){
-    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--g400)">Nessun risultato per "'+q+'"</div>';
-    return;
-  }
-  el.innerHTML = risultati.map(r=>`
-    <div class="card" style="margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
-        <div>
-          <div style="font-size:14px;font-weight:700">${r.modello||'—'} ${r.storage||''}</div>
-          <div style="font-size:10px;color:var(--g400);font-family:monospace">${r.imei||'—'}</div>
-        </div>
-        <span class="stato-${r.stato==='magazzino'?'mag':r.stato==='venduto'?'vend':'rip'}">${r.stato}</span>
-      </div>
-      <div class="rrow"><span class="rrl">Acquistato da</span><span class="rrv">${r.venditore||'—'}</span></div>
-      <div class="rrow"><span class="rrl">Prezzo acquisto</span><span class="rrv neg">€${r.prezzo_acquisto||0}</span></div>
-      ${r.stato==='venduto'?`<div class="rrow"><span class="rrl">Venduto a</span><span class="rrv">${r.cliente||'—'}</span></div>
-      <div class="rrow"><span class="rrl">Prezzo vendita</span><span class="rrv pos">€${r.prezzo_vendita||0}</span></div>
-      <div class="rrow"><span class="rrl">Margine</span><span class="rrv ${parseFloat(r.margine)>=0?'pos':'neg'}">€${r.margine||0}</span></div>`:''}
-    </div>
-  `).join('');
-}
-
-// ══ REPORT GIORNALIERO ════════════════════════════════════════════════
-
-async function loadReport(){
-  const dataSel = document.getElementById('report-data-sel').value;
-  const oggi = new Date();
-  const dataTarget = dataSel
-    ? new Date(dataSel).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})
-    : oggi.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
-
-  document.getElementById('report-data-lbl').textContent = dataSel
-    ? new Date(dataSel).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})
-    : 'Oggi — '+dataTarget;
-
-  document.getElementById('report-load').classList.add('show');
-  document.getElementById('rep-margine-banner').style.display='none';
-  document.getElementById('rep-acq-section').style.display='none';
-  document.getElementById('rep-vend-section').style.display='none';
-  document.getElementById('rep-empty').style.display='none';
-
-  // Usa cache o ricarica
-  if(!DB_CACHE.length) await loadDatabase();
-
-  document.getElementById('report-load').classList.remove('show');
-
-  const acquisti = DB_CACHE.filter(r=>{
-    const d = (r.data||'').trim();
-    return d === dataTarget;
-  });
-  const vendite = DB_CACHE.filter(r=>{
-    const d = (r.data_vendita||'').trim();
-    return d === dataTarget && r.stato==='venduto';
-  });
-  const magazzino = DB_CACHE.filter(r=>r.stato==='magazzino');
-
-  // Calcola totali
-  const totAcq  = acquisti.reduce((s,r)=>s+(parseFloat(r.prezzo_acquisto)||0),0);
-  const totVend  = vendite.reduce((s,r)=>s+(parseFloat(r.prezzo_vendita)||0),0);
-  const totMarg  = vendite.reduce((s,r)=>s+(parseFloat(r.margine)||0),0);
-
-  document.getElementById('rep-n-acq').textContent   = acquisti.length;
-  document.getElementById('rep-n-vend').textContent  = vendite.length;
-  document.getElementById('rep-tot-acq').textContent = acquisti.length ? '-€'+totAcq.toFixed(0) : '€0';
-  document.getElementById('rep-tot-vend').textContent= vendite.length  ? '+€'+totVend.toFixed(0) : '€0';
-  document.getElementById('rep-mag-count').textContent = magazzino.length;
-
-  // Margine banner
-  if(vendite.length){
-    document.getElementById('rep-margine-val').textContent = (totMarg>=0?'+':'')+totMarg.toFixed(0)+'€';
-    document.getElementById('rep-margine-val').style.color = totMarg>=0?'var(--green)':'var(--red)';
-    document.getElementById('rep-margine-sub').textContent = vendite.length+' vendite · costo medio '+(totAcq/Math.max(acquisti.length,1)).toFixed(0)+'€';
-    document.getElementById('rep-margine-banner').style.display='flex';
-  }
-
-  // Lista acquisti del giorno
-  if(acquisti.length){
-    document.getElementById('rep-acq-list').innerHTML = acquisti.map(r=>`
-      <div class="rrow">
-        <span class="rrl"><b>${r.modello||'—'}</b>${r.storage?' '+r.storage:''}<br>
-          <span style="font-family:monospace;font-size:9px;color:var(--g400)">${r.imei||''}</span><br>
-          <span style="font-size:10px">da ${r.venditore||'—'}</span>
-        </span>
-        <span class="rrv neg" style="font-size:15px">-€${r.prezzo_acquisto||0}</span>
-      </div>
-    `).join('');
-    document.getElementById('rep-acq-section').style.display='block';
-  }
-
-  // Lista vendite del giorno
-  if(vendite.length){
-    document.getElementById('rep-vend-list').innerHTML = vendite.map(r=>`
-      <div class="rrow">
-        <span class="rrl"><b>${r.modello||'—'}</b>${r.storage?' '+r.storage:''}<br>
-          <span style="font-size:10px">a ${r.cliente||'—'}</span>
-        </span>
-        <div style="text-align:right">
-          <div class="rrv pos">+€${r.prezzo_vendita||0}</div>
-          <div style="font-size:10px;color:${parseFloat(r.margine)>=0?'var(--green)':'var(--red)'};font-weight:600">
-            marg ${parseFloat(r.margine)>=0?'+':''}€${r.margine||0}
-          </div>
-        </div>
-      </div>
-    `).join('');
-    document.getElementById('rep-vend-section').style.display='block';
-  }
-
-  // Magazzino corrente
-  if(magazzino.length){
-    document.getElementById('rep-mag-list').innerHTML = magazzino.map(r=>`
-      <div style="padding:6px 0;border-bottom:1px solid var(--g100);display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div style="font-size:12px;font-weight:600">${r.modello||'—'} ${r.storage||''}</div>
-          <div style="font-size:10px;color:var(--g400)">da ${r.data||'—'} · ${r.venditore||''}</div>
-        </div>
-        <div style="font-size:13px;font-weight:700;color:var(--amber)">€${r.prezzo_acquisto||0}</div>
-      </div>
-    `).join('');
-  } else {
-    document.getElementById('rep-mag-list').innerHTML = '<div style="text-align:center;padding:16px;color:var(--g400);font-size:12px">Magazzino vuoto</div>';
-  }
-
-  if(!acquisti.length && !vendite.length){
-    document.getElementById('rep-empty').style.display='block';
-  }
-}
-
-// Inizializza date picker al valore odierno quando si apre il report
-function initReport(){
-  const today = new Date().toISOString().split('T')[0];
-  const el = document.getElementById('report-data-sel');
-  if(el && !el.value) el.value = today;
-  loadReport();
-}
-</script>
-
-<script>
-// ══ VENDI SMARTPHONE ═════════════════════════════════════════════
-let _vsCondizioneVendita = 'A';
-let _vsGaranziaMesi = 6;
-let _vsCostoAcquisto = 0;
-
-function setCondizioneVendita(g){
-  _vsCondizioneVendita = g;
-  ['A','B','C'].forEach(x =>
-    document.getElementById('vs-cond-'+x).classList.toggle('active', x===g)
-  );
-}
-
-function setGaranziaVendita(mesi){
-  _vsGaranziaMesi = mesi;
-  [6,12,0].forEach(x =>
-    document.getElementById('vs-gar-'+x).classList.toggle('active', x===mesi)
-  );
-}
-function aggiornaMargineVendita(){
-  const pz = parseFloat(document.getElementById('vs-prezzo').value)||0;
-  const wrap = document.getElementById('vs-margine-wrap');
-  if(pz > 0 && _vsCostoAcquisto > 0){
-    const marg = pz - _vsCostoAcquisto;
-    const el = document.getElementById('vs-margine-val');
-    el.textContent = (marg>=0?'+':'')+marg.toFixed(0)+'€';
-    el.style.color = marg>=0?'var(--green)':'var(--red)';
-    wrap.style.display = 'block';
-  } else {
-    wrap.style.display = 'none';
-  }
-}
-function resetVendiSmartphone(){
-  ['vs-imei-search','vs-modello','vs-imei','vs-batteria','vs-note',
-   'vs-nome','vs-cognome','vs-telefono','vs-prezzo'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  document.getElementById('vs-found').style.display     = 'none';
-  document.getElementById('vs-not-found').style.display = 'none';
-  document.getElementById('vs-margine-wrap').style.display = 'none';
-  document.getElementById('ris-vendi').classList.remove('show');
-  setCondizioneVendita('A');
-  setGaranziaVendita(6);
-  _vsCostoAcquisto = 0;
-  // Reset diagnostica — tutti verdi
-  document.querySelectorAll('#screen-vendi .diag-item').forEach(el=>{
-    el.classList.remove('ko'); el.classList.add('ok');
-  });
-  // Precompila data
-  const d = document.getElementById('vs-data');
-  if(d) d.value = new Date().toISOString().split('T')[0];
-}
-</script>
 
 </body>
 </html>
